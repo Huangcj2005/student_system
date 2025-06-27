@@ -9,15 +9,18 @@ import com.example.student_system.domain.entity.account.User;
 import com.example.student_system.domain.dto.account.UserInfo;
 import com.example.student_system.domain.vo.LoginResponse;
 import com.example.student_system.mapper.account.UserMapper;
+import com.example.student_system.service.account.MailService;
 import com.example.student_system.service.account.UserService;
 import com.example.student_system.util.AccountUtil;
 import com.example.student_system.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @Service("userService")
 public class UserServiceImpl implements UserService {
@@ -25,6 +28,10 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
     @Autowired
     private JwtUtil jwtUtil;
+    @Autowired
+    private MailService mailService;
+    @Autowired
+    private StringRedisTemplate redisTemplate;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();  // 密码解密
     final static String defaultAvatar = "src\\images\\userPic.png";
 
@@ -100,6 +107,26 @@ public class UserServiceImpl implements UserService {
                     ResponseCode.USERNAME_ALREADY_USED.getDescription()
             );
         }
+
+        // 验证码校验
+        String email = registerRequest.getEmail();
+        String code = registerRequest.getCode();
+        String redisCode = redisTemplate.opsForValue().get("email:code:" + email);
+        if (redisCode == null) {
+            return CommonResponse.createForError(
+                    ResponseCode.VALIDATECODE_INVALID.getCode(),
+                    ResponseCode.VALIDATECODE_INVALID.getDescription()
+            );
+        }
+        if (!redisCode.equals(code)) {
+            return CommonResponse.createForError(
+                    ResponseCode.VALIDATECODE_ERROR.getCode(),
+                    ResponseCode.VALIDATECODE_ERROR.getDescription()
+            );
+        }
+        // 验证通过后删除验证码
+        redisTemplate.delete("email:code:" + email);
+
         
         // 创建新用户
         User user = AccountUtil.RegisterToUser(
@@ -154,6 +181,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public CommonResponse<Integer> validateCode(String email) {
-        return null;
+        // 生成6位随机验证码
+        int code = (int)((Math.random() * 9 + 1) * 100000);
+
+        // 发送邮件
+        String subject = "您的验证码";
+        String content = "您的验证码是：" + code + "，请在5分钟内完成验证。";
+
+        // 存入Redis，key为邮箱，value为验证码，5分钟过期
+        redisTemplate.opsForValue().set("email:code:" + email, String.valueOf(code), 5, TimeUnit.MINUTES);
+
+        mailService.sendSimpleMail(email, subject, content);
+
+        // TODO: 返回验证码（仅用于开发测试，生产环境不要返回）
+        return CommonResponse.createForSuccess(
+                ResponseCode.EMAIL_VALIDATECODE_SEND_SUCCESS.getCode(),
+                ResponseCode.EMAIL_VALIDATECODE_SEND_SUCCESS.getDescription(),
+                code
+        );
     }
 }

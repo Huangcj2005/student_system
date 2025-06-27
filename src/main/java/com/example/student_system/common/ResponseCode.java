@@ -11,6 +11,9 @@ public enum ResponseCode {
     USER_REGISTER_SUCCESS(1000,"用户注册成功"),
     USER_LOGIN_SUCCESS(1001,"用户登录成功"),
     USER_INFO_GET_SUCCESS(1002,"用户信息获取成功"),
+    EMAIL_VALIDATECODE_SEND_SUCCESS(1003,"邮件验证码发送成功"),
+    VALIDATECODE_INVALID(1004,"验证码无效"),
+    VALIDATECODE_ERROR(1005,"验证码错误"),
 
 
     // --- 11xx:课程业务成功状态码

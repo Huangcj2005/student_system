@@ -92,4 +92,8 @@ public class UserController {
             return CommonResponse.createForError(ResponseCode.ERROR.getCode(), e.getMessage());
         }
     }
+    @PostMapping("/send-code")
+    public CommonResponse<Integer> sendCode(@RequestParam String email) {
+        return userService.validateCode(email);
+    }
 }

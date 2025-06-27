@@ -22,4 +22,5 @@ public class RegisterRequest {
     
     private String sex;
     private String profile;
+    private String code;
 } 
