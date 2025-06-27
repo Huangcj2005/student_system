@@ -9,21 +9,18 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-@TableName("users")
-public class User {
+@TableName("user_privacy")
+public class UserPrivacy {
     @TableId(value = "id",type = IdType.INPUT)
     private Integer id;
     @TableField(value = "user_id")
     private int userId;
-    @TableField(value = "user_name")
-    private String userName;
-    private String email;
-    private String password;
-    private String role;
-    private String sex;
-    private String photo;
-    private String profile;
-    private int status;
+    @TableField(value = "course_learning_visible")
+    private int courseLearningVisible;
+    @TableField("course_like_visible")
+    private int courseLikeVisible;
+    @TableField(value = "score_visible")
+    private int scoreVisible;
     @TableField(value = "create_time")
     private Date createTime;
     @TableField(value = "update_time")
@@ -31,14 +28,4 @@ public class User {
     @TableField(value = "delete_time")
     private Date deleteTime;
     private String unused;
-    
-    // 手动添加getter方法，以防Lombok没有正常工作
-    public int getUserId() {
-        return userId;
-    }
-    
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
 }

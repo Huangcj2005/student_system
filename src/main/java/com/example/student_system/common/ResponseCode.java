@@ -9,6 +9,8 @@ public enum ResponseCode {
 
     // --- 10xx:用户业务成功状态码
     USER_REGISTER_SUCCESS(1000,"用户注册成功"),
+    USER_LOGIN_SUCCESS(1001,"用户登录成功"),
+    USER_INFO_GET_SUCCESS(1002,"用户信息获取成功"),
 
 
     // --- 11xx:课程业务成功状态码
@@ -24,7 +26,13 @@ public enum ResponseCode {
     // --- 20xx:用户业务失败状态码
     TOKEN_MISSING(2000,"缺少令牌"),
     TOKEN_INVALID(2001,"无效的令牌"),
-    TOKEN_EXPIRED(2002,"令牌已过期")
+    TOKEN_EXPIRED(2002,"令牌已过期"),
+    ACCOUNT_INVALID(2003,"账号错误或不存在"),
+    PASSWORD_ERROR(2004,"密码错误"),
+
+    // --- 201x:注册失败
+    EMAIL_ALREADY_USED(2010,"邮箱已被使用"),
+    USERNAME_ALREADY_USED(2011,"用户名已被使用"),
 
     // --- 21xx:课程业务失败状态码
 
