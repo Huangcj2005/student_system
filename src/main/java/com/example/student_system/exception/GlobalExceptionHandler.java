@@ -21,6 +21,31 @@ public class GlobalExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     /**
+     * 处理限流异常
+     */
+    @ExceptionHandler(RateLimitException.class)
+    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS) // 429状态码表示请求过多
+    public CommonResponse<String> handleRateLimitException(RateLimitException e) {
+        logger.warn("限流异常: {}", e.getMessage());
+        return CommonResponse.createForError(
+            ResponseCode.RATE_LIMIT_EXCEEDED.getCode(),
+            ResponseCode.RATE_LIMIT_EXCEEDED.getDescription()
+        );
+    }
+
+    /**
+     * 处理认证异常
+     */
+    @ExceptionHandler(AuthenticationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public CommonResponse<String> handleAuthenticationException(AuthenticationException e) {
+        logger.warn("认证异常: {}", e.getMessage());
+        return CommonResponse.createForError(
+                ResponseCode.TOKEN_INVALID.getCode(),
+                e.getMessage());
+    }
+
+    /**
      * 处理参数验证异常
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)

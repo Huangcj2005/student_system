@@ -33,6 +33,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private StringRedisTemplate redisTemplate;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();  // 密码解密
+    // TODO：此处默认头像路径后续需要更改，或者使用config进行配置
     final static String defaultAvatar = "src\\images\\userPic.png";
 
     @Override

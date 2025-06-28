@@ -36,6 +36,7 @@ public enum ResponseCode {
     // --- 201x:注册失败
     EMAIL_ALREADY_USED(2010,"邮箱已被使用"),
     USERNAME_ALREADY_USED(2011,"用户名已被使用"),
+    RATE_LIMIT_EXCEEDED(2012,"请求过于频繁，请稍后再试"),
 
     // --- 21xx:课程业务失败状态码
 

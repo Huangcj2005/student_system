@@ -17,8 +17,8 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(jwtFilter)
                 .addPathPatterns("/**") // 拦截所有请求
                 .excludePathPatterns(
-                        "/api/auth/login",    // 登录接口
-                        "/api/auth/register", // 注册接口
+                        "/user/login",    // 登录接口
+                        "/user/register", // 注册接口
                         "/error",             // 错误页面
                         "/favicon.ico"        // 网站图标
                 );
