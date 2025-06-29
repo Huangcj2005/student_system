@@ -27,17 +27,4 @@ public interface UserService {
      * @return 用户信息
      */
     CommonResponse<UserInfo> getUserInfo(int userId);
-    
-    /**
-     * 验证token是否有效
-     * @param token JWT token
-     * @return 用户ID，如果无效返回null
-     */
-    Integer validateToken(String token);
-
-    /**
-     * 用于实现邮箱验证码功能
-     * @return
-     */
-    CommonResponse<Integer> validateCode(String email);
 }

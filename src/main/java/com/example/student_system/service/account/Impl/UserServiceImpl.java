@@ -9,7 +9,7 @@ import com.example.student_system.domain.entity.account.User;
 import com.example.student_system.domain.dto.account.UserInfo;
 import com.example.student_system.domain.vo.LoginResponse;
 import com.example.student_system.mapper.account.UserMapper;
-import com.example.student_system.service.account.MailService;
+import com.example.student_system.service.mail.CodeService;
 import com.example.student_system.service.account.UserService;
 import com.example.student_system.util.AccountUtil;
 import com.example.student_system.util.JwtUtil;
@@ -20,17 +20,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
-
 @Service("userService")
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
     @Autowired
     private JwtUtil jwtUtil;
-    @Autowired
-    private MailService mailService;
     @Autowired
     private StringRedisTemplate redisTemplate;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();  // 密码解密
@@ -169,41 +164,6 @@ public class UserServiceImpl implements UserService {
                 ResponseCode.USER_INFO_GET_SUCCESS.getCode(),
                 ResponseCode.USER_INFO_GET_SUCCESS.getDescription(),
                 AccountUtil.UserToInfo(user)
-        );
-    }
-
-    @Override
-    public Integer validateToken(String token) {
-        if (!StringUtils.hasText(token)) {
-            return null;
-        }
-        
-        try {
-            // 验证token并获取用户ID
-            var claims = jwtUtil.verifyToken(token);
-            return claims.get("userId").asInt();
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    @Override
-    public CommonResponse<Integer> validateCode(String email) {
-        // 生成6位随机验证码
-        int code = (int)((Math.random() * 9 + 1) * 100000);
-
-        // 发送邮件
-        String subject = "您的验证码";
-        String content = "您的验证码是：" + code + "，请在5分钟内完成验证。";
-
-        // 存入Redis，key为邮箱，value为验证码，5分钟过期
-        redisTemplate.opsForValue().set("email:code:" + email, String.valueOf(code), 5, TimeUnit.MINUTES);
-
-        mailService.sendSimpleMail(email, subject, content);
-
-        return CommonResponse.createForSuccess(
-                ResponseCode.EMAIL_VALIDATECODE_SEND_SUCCESS.getCode(),
-                ResponseCode.EMAIL_VALIDATECODE_SEND_SUCCESS.getDescription()
         );
     }
 }

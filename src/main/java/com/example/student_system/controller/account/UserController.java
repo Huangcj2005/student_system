@@ -10,6 +10,7 @@ import com.example.student_system.domain.dto.account.RegisterRequest;
 import com.example.student_system.domain.dto.account.UserInfo;
 import com.example.student_system.domain.vo.LoginResponse;
 import com.example.student_system.service.account.UserService;
+import com.example.student_system.service.mail.CodeService;
 import com.example.student_system.util.JwtUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ import java.util.concurrent.TimeUnit;
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private CodeService codeService;
     @Autowired
     private JwtUtil jwtUtil;
 
@@ -67,7 +70,7 @@ public class UserController {
         try {
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 String token = authHeader.substring(7);
-                Integer userId = userService.validateToken(token);
+                Integer userId = codeService.validateToken(token);
                 if (userId != null) {
                     return CommonResponse.createForSuccess(ResponseCode.SUCCESS.getCode(), "token有效");
                 }
@@ -84,6 +87,6 @@ public class UserController {
     @PostMapping("verification-codes")
     @RateLimit(value = 1, timeUnit = 60000)
     public CommonResponse<Integer> sendCode(@RequestParam String email) {
-        return userService.validateCode(email);
+        return codeService.validateCode(email);
     }
 }

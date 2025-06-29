@@ -1,6 +1,7 @@
 package com.example.student_system.filter;
 
 import com.example.student_system.service.account.UserService;
+import com.example.student_system.service.mail.CodeService;
 import com.example.student_system.util.UserContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,7 +14,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 public class JwtFilter implements HandlerInterceptor {
 
     @Autowired
-    private UserService userService;
+    private CodeService codeService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -29,7 +30,7 @@ public class JwtFilter implements HandlerInterceptor {
             String token = authHeader.substring(7); // 去掉"Bearer "前缀
             
             // 验证token
-            Integer userId = userService.validateToken(token);
+            Integer userId = codeService.validateToken(token);
             System.out.println("Token 验证结果 - userId: " + userId);
             
             if (userId != null) {
