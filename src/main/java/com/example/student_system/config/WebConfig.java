@@ -12,11 +12,13 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired
     private JwtFilter jwtFilter;
 
+    // TODO: 这里的过滤需要做一定的更改，控制哪些才是需要授权的
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtFilter)
                 .addPathPatterns("/**") // 拦截所有请求
                 .excludePathPatterns(
+                        "/user/verification-codes", // 验证码接口
                         "/user/login",    // 登录接口
                         "/user/register", // 注册接口
                         "/error",             // 错误页面

@@ -13,6 +13,7 @@ import com.example.student_system.service.account.MailService;
 import com.example.student_system.service.account.UserService;
 import com.example.student_system.util.AccountUtil;
 import com.example.student_system.util.JwtUtil;
+import com.example.student_system.util.UserContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -76,6 +77,9 @@ public class UserServiceImpl implements UserService {
 
         response.setUserInfo(AccountUtil.UserToInfo(user));
         
+        // 设置用户上下文，让@LogAction注解能够获取到用户ID
+        UserContext.setCurrentUserId(user.getUserId());
+        
         return CommonResponse.createForSuccess(
                 ResponseCode.USER_LOGIN_SUCCESS.getCode(),
                 ResponseCode.USER_LOGIN_SUCCESS.getDescription(),
@@ -137,6 +141,9 @@ public class UserServiceImpl implements UserService {
         
         // 生成用户ID（这里简单使用时间戳，实际项目中可能需要更复杂的逻辑）
         user.setUserId((int) (System.currentTimeMillis() % 1000000));
+
+        // 设置用户上下文，让@LogAction注解能够获取到用户ID
+        UserContext.setCurrentUserId(user.getUserId());
         
         userMapper.insert(user);
         return CommonResponse.createForSuccess(
@@ -194,11 +201,9 @@ public class UserServiceImpl implements UserService {
 
         mailService.sendSimpleMail(email, subject, content);
 
-        // TODO: 返回验证码（仅用于开发测试，生产环境不要返回）
         return CommonResponse.createForSuccess(
                 ResponseCode.EMAIL_VALIDATECODE_SEND_SUCCESS.getCode(),
-                ResponseCode.EMAIL_VALIDATECODE_SEND_SUCCESS.getDescription(),
-                code
+                ResponseCode.EMAIL_VALIDATECODE_SEND_SUCCESS.getDescription()
         );
     }
 }

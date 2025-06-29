@@ -1,6 +1,7 @@
 package com.example.student_system.controller.account;
 
 import com.auth0.jwt.interfaces.Claim;
+import com.example.student_system.annotation.LogAction;
 import com.example.student_system.annotation.RateLimit;
 import com.example.student_system.common.CommonResponse;
 import com.example.student_system.common.ResponseCode;
@@ -29,6 +30,7 @@ public class UserController {
      * 用户登录
      */
     @PostMapping("login")
+    @LogAction("用户登录")
     public CommonResponse<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         return userService.login(loginRequest);
     }
@@ -37,6 +39,7 @@ public class UserController {
      * 用户注册
      */
     @PostMapping("register")
+    @LogAction("用户注册")
     public CommonResponse<String> register(@Valid @RequestBody RegisterRequest registerRequest) {
         return userService.register(registerRequest);
     }
@@ -45,6 +48,7 @@ public class UserController {
      * 获取当前用户信息
      */
     @GetMapping("student-info")
+    @LogAction("获取用户信息")
     public CommonResponse<UserInfo> getUserInfo(@RequestHeader("Authorization") String token) {
         // 解析 jwt 获取 userId
         String actualToken = token.replace("Bearer ", "");
@@ -58,7 +62,7 @@ public class UserController {
      * 该方法用于验证 token 的有效性
      * 在用户登录、请求访问需要 token 的 url 时进行调用
      */
-    @GetMapping("/verify")
+    @GetMapping("verify")
     public CommonResponse<String> verifyToken(@RequestHeader("Authorization") String authHeader) {
         try {
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -77,7 +81,7 @@ public class UserController {
 
     // 限制每分钟最多发送一条邮件
     // 后端限制该方法的使用时间，用于避免直接访问 url 可能带来的问题
-    @PostMapping("/verification-codes")
+    @PostMapping("verification-codes")
     @RateLimit(value = 1, timeUnit = 60000)
     public CommonResponse<Integer> sendCode(@RequestParam String email) {
         return userService.validateCode(email);

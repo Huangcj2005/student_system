@@ -3,9 +3,11 @@ package com.example.student_system.util;
 import com.example.student_system.domain.dto.account.RegisterRequest;
 import com.example.student_system.domain.entity.account.User;
 import com.example.student_system.domain.dto.account.UserInfo;
+import lombok.Data;
 
 import java.util.Date;
 
+@Data
 public class AccountUtil {
     public static UserInfo UserToInfo(User user){
         UserInfo userInfo = new UserInfo();

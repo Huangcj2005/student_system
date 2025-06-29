@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 /**
  * 用户上下文工具类
  */
+// TODO：是否意味着那些 controller 中需要验证 token 的部分可以被替换成这里的 getUserId 方法？
 public class UserContext {
     
     private static final String USER_ID_KEY = "userId";

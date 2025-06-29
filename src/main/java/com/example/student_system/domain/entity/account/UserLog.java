@@ -18,7 +18,6 @@ public class UserLog {
     @TableField(value = "user_name")
     private String username;
     private String ip;
-    private String location;
     private String action;
     @TableField(value = "create_time")
     private Date createTime;

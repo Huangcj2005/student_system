@@ -19,6 +19,18 @@ public class CommonResponse<T>{
         this.message = message;
     }
 
+    // 手动添加getter方法，确保编译通过
+    public int getStatus() {
+        return status;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public T getData() {
+        return data;
+    }
 
     //常用成功
     public static <T>CommonResponse<T> createForSuccess(int code,String message,T data){
