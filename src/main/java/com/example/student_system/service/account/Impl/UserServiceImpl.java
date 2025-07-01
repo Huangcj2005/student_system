@@ -7,8 +7,10 @@ import com.example.student_system.domain.dto.account.LoginRequest;
 import com.example.student_system.domain.dto.account.RegisterRequest;
 import com.example.student_system.domain.entity.account.User;
 import com.example.student_system.domain.dto.account.UserInfo;
+import com.example.student_system.domain.entity.account.UserPrivacy;
 import com.example.student_system.domain.vo.LoginResponse;
 import com.example.student_system.mapper.account.UserMapper;
+import com.example.student_system.mapper.account.UserPrivacyMapper;
 import com.example.student_system.service.mail.CodeService;
 import com.example.student_system.service.account.UserService;
 import com.example.student_system.util.AccountUtil;
@@ -20,10 +22,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.Date;
+
 @Service("userService")
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private UserPrivacyMapper userPrivacyMapper;
     @Autowired
     private JwtUtil jwtUtil;
     @Autowired
@@ -128,7 +134,7 @@ public class UserServiceImpl implements UserService {
         redisTemplate.delete("email:code:" + email);
 
         
-        // 创建新用户
+        // 创建新用户(已包含创建时间)
         User user = AccountUtil.RegisterToUser(
                 registerRequest,
                 passwordEncoder.encode(registerRequest.getPassword()),
@@ -141,29 +147,17 @@ public class UserServiceImpl implements UserService {
         UserContext.setCurrentUserId(user.getUserId());
         
         userMapper.insert(user);
+
+        // 创建用户隐私策略
+        UserPrivacy userPrivacy = new UserPrivacy(user.getUserId());
+        userPrivacy.setCreateTime(new Date(System.currentTimeMillis()));
+        userPrivacy.setUpdateTime(userPrivacy.getCreateTime());
+
+        userPrivacyMapper.insert(userPrivacy);
+
         return CommonResponse.createForSuccess(
                 ResponseCode.USER_REGISTER_SUCCESS.getCode(),
                 ResponseCode.USER_REGISTER_SUCCESS.getDescription()
-        );
-    }
-
-    @Override
-    public CommonResponse<UserInfo> getUserInfo(int userId) {
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_id", userId);
-        User user = userMapper.selectOne(queryWrapper);
-        
-        if (user == null) {
-            return CommonResponse.createForError(
-                    ResponseCode.ERROR.getCode(),
-                    "数据库内部错误"
-            );
-        }
-        
-        return CommonResponse.createForSuccess(
-                ResponseCode.USER_INFO_GET_SUCCESS.getCode(),
-                ResponseCode.USER_INFO_GET_SUCCESS.getDescription(),
-                AccountUtil.UserToInfo(user)
         );
     }
 }

@@ -22,6 +22,11 @@ public class JwtFilter implements HandlerInterceptor {
         String requestURI = request.getRequestURI();
         System.out.println("JwtFilter 拦截请求: " + requestURI);
         
+        // 检查是否是错误页面请求，如果是则直接放行
+        if ("/error".equals(requestURI)) {
+            return true;
+        }
+        
         // 获取请求头中的Authorization
         String authHeader = request.getHeader("Authorization");
         System.out.println("Authorization header: " + authHeader);

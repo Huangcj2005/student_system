@@ -14,13 +14,13 @@ public class UserPrivacy {
     @TableId(value = "id",type = IdType.INPUT)
     private Integer id;
     @TableField(value = "user_id")
-    private int userId;
+    private Integer userId;
     @TableField(value = "course_learning_visible")
-    private int courseLearningVisible;
+    private Integer courseLearningVisible;
     @TableField("course_like_visible")
-    private int courseLikeVisible;
+    private Integer courseLikeVisible;
     @TableField(value = "score_visible")
-    private int scoreVisible;
+    private Integer scoreVisible;
     @TableField(value = "create_time")
     private Date createTime;
     @TableField(value = "update_time")
@@ -28,4 +28,11 @@ public class UserPrivacy {
     @TableField(value = "delete_time")
     private Date deleteTime;
     private String unused;
+
+    public UserPrivacy(Integer userId){
+        this.userId = userId;
+        this.courseLearningVisible = 0;
+        this.courseLikeVisible = 0;
+        this.scoreVisible = 0;
+    }
 }
