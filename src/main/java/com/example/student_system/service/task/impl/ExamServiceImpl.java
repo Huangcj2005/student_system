@@ -7,12 +7,11 @@ import com.example.student_system.domain.entity.task.Exam;
 import com.example.student_system.domain.entity.task.ExamRecord;
 import com.example.student_system.domain.entity.task.QuestionBank;
 import com.example.student_system.domain.entity.task.QuestionRecord;
-import com.example.student_system.domain.vo.task.ExamVO;
 import com.example.student_system.domain.vo.task.QuestionVO;
-import com.example.student_system.mapper.ExamMapper;
-import com.example.student_system.mapper.ExamRecordMapper;
-import com.example.student_system.mapper.QuestionBankMapper;
-import com.example.student_system.mapper.QuestionRecordMapper;
+import com.example.student_system.mapper.task.ExamMapper;
+import com.example.student_system.mapper.task.ExamRecordMapper;
+import com.example.student_system.mapper.task.QuestionBankMapper;
+import com.example.student_system.mapper.task.QuestionRecordMapper;
 import com.example.student_system.service.task.ExamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -137,6 +136,8 @@ public class ExamServiceImpl implements ExamService
     @Override
     public CommonResponse<QuestionRecord> saveOrUpdateQuestionRecord(QuestionRecord questionRecord)
     {
+        // 查询对应的答题记录
+        QueryWrapper<QuestionRecord> queryWrapper = new QueryWrapper<>();
 
         return null;
     }

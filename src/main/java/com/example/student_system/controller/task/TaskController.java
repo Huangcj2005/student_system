@@ -1,4 +1,4 @@
-package com.example.student_system.controller;
+package com.example.student_system.controller.task;
 
 import com.example.student_system.common.CommonResponse;
 import com.example.student_system.common.ResponseCode;
