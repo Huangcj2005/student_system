@@ -34,7 +34,17 @@ public enum ResponseCode {
     ENROLLMENT_ADD_SUCCESS(1110,"选课成功"),
     ENROLLMENT_DELETE_SUCCESS(1101,"退课成功"),
     // --- 12xx:作业业务成功状态码
+    HOMEWORK_LIST_FETCH_SUCCESS(1200, "用户作业列表获取成功"),
+    HOMEWORK_ASSIGN_SUCCESS(1201, "作业发布成功"),
+    HOMEWORK_SUBMISSION_SUCCESS(1202,"作业提交成功"),
+    HOMEWORK_REMARK_SUCCESS(1203, "作业评价成功"),
+    HOMEWORK_SCORE_FETCH_SUCCESS(1204, "学生作业平均成绩获取成功"),
+    HOMEWORK_DETAIL_FETCH_SUCCESS(1205, "作业详情获取成功"),
 
+    EXAM_CREATE_SUCCESS(1300, "考试创建成功"),
+    EXAM_LIST_FETCH_SUCCESS(1301, "考试列表查询成功"),
+    PAPER_GENERATE_SUCCESS(1302, "试卷生成成功"),
+    USER_EXAM_LIST_FETCH_SUCCESS(1303, "用户考试列表获取成功"),
 
 
     // 错误码从 2000 开始，命名格式与成功码相同
@@ -49,6 +59,7 @@ public enum ResponseCode {
     VALIDATECODE_INVALID(2005,"验证码无效"),
     VALIDATECODE_ERROR(2006,"验证码错误"),
 
+
     // --- 201x:注册失败
     EMAIL_ALREADY_USED(2010,"邮箱已被使用"),
     USERNAME_ALREADY_USED(2011,"用户名已被使用"),
@@ -61,8 +72,11 @@ public enum ResponseCode {
     NOTE_ASSIGN_FAIL(2103,"笔记添加失败"),
 
     // --- 22xx:作业业务失败状态码
-    HOMEWORK_LIST_FETCH_SUCCESS(2200, "用户作业列表获取成功"),
-    HOMEWORK_ASSIGN_SUCCESS(2201, "作业发布成功"),
+    HOMEWORK_EXISTS(2200,"作业已存在"),
+    SUFFIX_NOT_ALLOWED(2201, "不支持的附件类型"),
+    UPLOAD_FAILED(2202, "文件上传失败"),
+
+    PAPER_GENERATE_FAILED(2303, "试卷生成失败")
 
 
     ;
