@@ -4,12 +4,14 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.student_system.common.CommonResponse;
 import com.example.student_system.common.ResponseCode;
 import com.example.student_system.domain.entity.note.Note;
+import com.example.student_system.domain.vo.NoteVo;
 import com.example.student_system.mapper.NoteMapper;
 import com.example.student_system.service.note.NoteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service("NoteService")
 public class NoteServiceImpl implements NoteService {
@@ -25,18 +27,28 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public CommonResponse<List<Note>> getNoteListByUserId(int user_id,int course_id) {
+    public CommonResponse<List<NoteVo>> getNoteListByUserId(int user_id, int course_id) {
         QueryWrapper<Note> queryWrapper=new QueryWrapper<>();
         queryWrapper.eq("user_id",user_id)
                 .eq("course_id",course_id);
         List<Note> noteList=noteMapper.selectList(queryWrapper);
-
-        if (noteList.size()>0)
+        List<NoteVo> noteVoList=noteList.stream().map(
+                note -> {
+                    NoteVo vo=new NoteVo();
+                    vo.setNote_content(note.getNote_content());
+                    vo.setChapter_name(note.getChapter_name());
+                    vo.setChapter_id(note.getChapter_id());
+                    vo.setCourse_id(note.getCourse_id());
+                    vo.setCourse_name(note.getCourse_name());
+                    return vo;
+                }
+        ).collect(Collectors.toList());
+        if (noteVoList.size()>0)
         {
             return CommonResponse.createForSuccess(
                     ResponseCode.NOTE_LIST_FETCH_SUCCESS.getCode(),
                     ResponseCode.NOTE_LIST_FETCH_SUCCESS.getDescription(),
-                    noteList
+                    noteVoList
             );
         }
         else {

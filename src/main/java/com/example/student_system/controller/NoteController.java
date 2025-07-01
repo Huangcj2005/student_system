@@ -2,6 +2,7 @@ package com.example.student_system.controller;
 
 import com.example.student_system.common.CommonResponse;
 import com.example.student_system.domain.entity.note.Note;
+import com.example.student_system.domain.vo.NoteVo;
 import com.example.student_system.service.note.NoteService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ public class NoteController {
     }
 
     @GetMapping("/getNote/{user_id}/{course_id}")
-    public CommonResponse<List<Note>> getNote(@PathVariable int user_id,@PathVariable int course_id){
+    public CommonResponse<List<NoteVo>> getNote(@PathVariable int user_id, @PathVariable int course_id){
         return noteService.getNoteListByUserId(user_id,course_id);
     }
 

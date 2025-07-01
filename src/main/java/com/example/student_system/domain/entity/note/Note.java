@@ -15,7 +15,7 @@ public class Note {
     private int user_id;
     private int course_id;
     private String course_name;
-    private int chapter_id;
+    private String chapter_id;
     private String chapter_name;
     @TableField("content")
     private String note_content;
