@@ -2,6 +2,7 @@ package com.example.student_system.aspect;
 
 import com.example.student_system.annotation.LogAction;
 import com.example.student_system.domain.entity.account.UserLog;
+import com.example.student_system.service.account.UserInfoService;
 import com.example.student_system.service.account.UserLogService;
 import com.example.student_system.service.account.UserService;
 import com.example.student_system.util.UserContext;
@@ -24,9 +25,11 @@ import java.util.Date;
 public class LogAspect {
     @Autowired
     private UserLogService userLogService;
-    
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserInfoService userInfoService;
+
 
     // 定义切点，进行拦截
     @Pointcut("@annotation(com.example.student_system.annotation.LogAction)")
@@ -133,7 +136,7 @@ public class LogAspect {
             }
             
             // 通过UserService获取用户信息
-            var response = userService.getUserInfo(userId);
+            var response = userInfoService.getUserInfo(userId);
             // 检查状态码是否在成功范围内（1000-1999）
             if (response.getStatus() >= 1000 && response.getStatus() < 2000 && response.getData() != null) {
                 return response.getData().getUserName();

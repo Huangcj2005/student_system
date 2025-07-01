@@ -14,7 +14,7 @@ public class UserLog {
     @TableId(value = "id",type = IdType.INPUT)
     private Integer id;
     @TableField(value = "user_id")
-    private int userId;
+    private Integer userId;
     @TableField(value = "user_name")
     private String username;
     private String ip;

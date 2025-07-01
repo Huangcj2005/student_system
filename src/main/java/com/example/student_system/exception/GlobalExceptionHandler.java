@@ -11,7 +11,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +21,23 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
     
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    /**
+     * 处理404错误 - 访问不存在的URL地址
+     */
+    @ExceptionHandler(NoHandlerFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public CommonResponse<String> handleNoHandlerFoundException(NoHandlerFoundException e, HttpServletRequest request) {
+        String requestURI = request.getRequestURI();
+        String method = request.getMethod();
+        
+        logger.warn("访问不存在的URL地址: {} {}", method, requestURI);
+        
+        return CommonResponse.createForError(
+                ResponseCode.RESOURCE_NOT_FOUND.getCode(),
+                "请求的资源不存在: " + requestURI
+        );
+    }
 
     /**
      * 处理限流异常
@@ -49,7 +68,7 @@ public class GlobalExceptionHandler {
      * 处理参数验证异常
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.OK)
     public CommonResponse<String> handleValidationException(MethodArgumentNotValidException e) {
         List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
         String errorMessage = fieldErrors.stream()
@@ -57,14 +76,16 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining(", "));
         
         logger.warn("参数验证失败: {}", errorMessage);
-        return CommonResponse.createForError(ResponseCode.ERROR.getCode(), errorMessage);
+        return CommonResponse.createForError(
+                ResponseCode.PARAMETER_VALIDATION_ERROR.getCode(),
+                errorMessage);
     }
 
     /**
      * 处理绑定异常
      */
     @ExceptionHandler(BindException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.OK)
     public CommonResponse<String> handleBindException(BindException e) {
         List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
         String errorMessage = fieldErrors.stream()
@@ -72,7 +93,9 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining(", "));
         
         logger.warn("参数绑定失败: {}", errorMessage);
-        return CommonResponse.createForError(ResponseCode.ERROR.getCode(), errorMessage);
+        return CommonResponse.createForError(
+                ResponseCode.PARAMETER_VALIDATION_ERROR.getCode(),
+                errorMessage);
     }
 
     /**
