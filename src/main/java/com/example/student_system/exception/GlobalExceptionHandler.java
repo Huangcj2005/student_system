@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
      * 处理限流异常
      */
     @ExceptionHandler(RateLimitException.class)
-    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS) // 429状态码表示请求过多
+    @ResponseStatus(HttpStatus.OK)
     public CommonResponse<String> handleRateLimitException(RateLimitException e) {
         logger.warn("限流异常: {}", e.getMessage());
         return CommonResponse.createForError(

@@ -13,6 +13,7 @@ import com.example.student_system.mapper.account.UserMapper;
 import com.example.student_system.mapper.account.UserPrivacyMapper;
 import com.example.student_system.service.account.UserInfoService;
 import com.example.student_system.util.AccountUtil;
+import com.example.student_system.util.QueryUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,9 +29,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public CommonResponse<UserInfo> getUserInfo(int userId) {
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_id", userId);
-        User user = userMapper.selectOne(queryWrapper);
+        User user = QueryUtil.getUserById(userMapper, userId);
 
         if (user == null) {
             return CommonResponse.createForError(
@@ -47,10 +46,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     public CommonResponse<String> updateUserInfo(ChangeUserInfoDTO userInfo,int userId){
-        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
-        userQueryWrapper.eq("user_id",userId);
-
-        User updatedUser = AccountUtil.InfoToUser(userInfo,userMapper.selectOne(userQueryWrapper));
+        User existingUser = QueryUtil.getUserById(userMapper, userId);
+        User updatedUser = AccountUtil.InfoToUser(userInfo, existingUser);
 
         UpdateWrapper<User> userUpdateWrapper = new UpdateWrapper<>();
         userUpdateWrapper.eq("user_id",userId);
@@ -63,9 +60,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     public CommonResponse<String> updatePassword(int userId, String oldPassword, String newPassword){
-        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
-        userQueryWrapper.eq("user_id",userId);
-        User user = userMapper.selectOne(userQueryWrapper);
+        User user = QueryUtil.getUserById(userMapper, userId);
 
         if(user == null){
             return CommonResponse.createForError(
@@ -98,9 +93,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     public CommonResponse<ChangePrivacyDTO> getUserPrivacy(int userId){
-        QueryWrapper<UserPrivacy> privacyQueryWrapper = new QueryWrapper<>();
-        privacyQueryWrapper.eq("user_id",userId);
-        UserPrivacy userPrivacy = userPrivacyMapper.selectOne(privacyQueryWrapper);
+        UserPrivacy userPrivacy = QueryUtil.getUserPrivacyById(userPrivacyMapper, userId);
 
         if(userPrivacy == null){
             return CommonResponse.createForError(
@@ -123,9 +116,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 
     public CommonResponse<String> updatePrivacy(int userId, ChangePrivacyDTO privacyDTO){
-        QueryWrapper<UserPrivacy> userPrivacyQueryWrapper = new QueryWrapper<>();
-        userPrivacyQueryWrapper.eq("user_id",userId);
-        UserPrivacy userPrivacy = userPrivacyMapper.selectOne(userPrivacyQueryWrapper);
+        UserPrivacy userPrivacy = QueryUtil.getUserPrivacyById(userPrivacyMapper, userId);
 
         userPrivacy.setCourseLearningVisible(privacyDTO.getCourseLearningVisible());
         userPrivacy.setCourseLikeVisible(privacyDTO.getCourseLikeVisible());

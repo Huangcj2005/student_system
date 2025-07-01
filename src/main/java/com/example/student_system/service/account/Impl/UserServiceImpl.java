@@ -16,6 +16,7 @@ import com.example.student_system.service.account.UserService;
 import com.example.student_system.util.AccountUtil;
 import com.example.student_system.util.JwtUtil;
 import com.example.student_system.util.UserContext;
+import com.example.student_system.util.QueryUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -41,9 +42,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public CommonResponse<LoginResponse> login(LoginRequest loginRequest) {
         // 根据邮箱查询用户
-        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
-        userQueryWrapper.eq("email", loginRequest.getEmail());
-        User user = userMapper.selectOne(userQueryWrapper);
+        User user = QueryUtil.getUserByEmail(userMapper, loginRequest.getEmail());
 
         // 账号存在性检验
         if (user == null) {
@@ -91,11 +90,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public CommonResponse<String> register(RegisterRequest registerRequest) {
         // 检查邮箱是否已存在
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("email", registerRequest.getEmail());
-        User existingUser = userMapper.selectOne(queryWrapper);
-        
-        if (existingUser != null) {
+        if (QueryUtil.isEmailExists(userMapper, registerRequest.getEmail())) {
             return CommonResponse.createForError(
                     ResponseCode.EMAIL_ALREADY_USED.getCode(),
                     ResponseCode.EMAIL_ALREADY_USED.getDescription()
@@ -103,11 +98,7 @@ public class UserServiceImpl implements UserService {
         }
         
         // 检查用户名是否已存在
-        queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_name", registerRequest.getUserName());
-        existingUser = userMapper.selectOne(queryWrapper);
-        
-        if (existingUser != null) {
+        if (QueryUtil.isUserNameExists(userMapper, registerRequest.getUserName())) {
             return CommonResponse.createForError(
                     ResponseCode.USERNAME_ALREADY_USED.getCode(),
                     ResponseCode.USERNAME_ALREADY_USED.getDescription()
