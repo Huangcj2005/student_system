@@ -9,8 +9,6 @@ import java.util.Date;
 public class HomeworkDTO
 {
     private int course_id;
-    private int teacher_id;
-    private int user_id;
     private String homework_title;
     private String homework_content;
     private String remark;

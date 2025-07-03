@@ -49,21 +49,20 @@ public class TaskController
 
     // 查看个人所有作业url
     @LogAction("用户查看个人所有课程")
-    @RequestMapping(value = "/homework/{user_id}", method = RequestMethod.GET)
-    public CommonResponse<List<Homework>> getHomework(@PathVariable int user_id)
+    @RequestMapping(value = "/homework", method = RequestMethod.GET)
+    public CommonResponse<List<Homework>> getHomework()
     {
-        return homeworkService.getHomeworkByUserid(user_id);
+        return homeworkService.getHomeworkByUserid(UserContext.getCurrentUserId());
     }
 
     // 查看个人选的某门课的全部作业
     @LogAction("用户查看课程全部作业")
-    @RequestMapping(value = "/homework/{user_id}/{course_id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/homework/{course_id}", method = RequestMethod.GET)
     public CommonResponse<List<Homework>> getCourseHomework(
-            @PathVariable int user_id,
             @PathVariable int course_id
     )
     {
-        return homeworkService.getHomeworkByUserid(user_id, course_id);
+        return homeworkService.getHomeworkByUserid(UserContext.getCurrentUserId(), course_id);
     }
 
     // 查看作业详情
@@ -74,15 +73,14 @@ public class TaskController
             @RequestParam String title
             )
     {
-        return homeworkService.getHomeworkDetail(course_id, title);
+        return homeworkService.getHomeworkDetail(UserContext.getCurrentUserId() ,course_id, title);
     }
 
 
     // 发布作业url，需要前段将作业基本信息放在assignment字段中，文件放在files当中
     @LogAction("教师发布作业")
-    @RequestMapping(value = "/homework/{teacher_id}/{course_id}/assign", method = RequestMethod.POST)
+    @RequestMapping(value = "/homework/{course_id}/assign", method = RequestMethod.POST)
     public CommonResponse<Homework> assignHomework(
-            @PathVariable int teacher_id,
             @PathVariable int course_id,
             @RequestPart("homework") HomeworkDTO homeworkDTO,
             @RequestPart(value = "files", required = false)MultipartFile[] files
@@ -168,7 +166,7 @@ public class TaskController
             BeanUtils.copyProperties(homeworkDTO, homework);
             homework.setCourse_id(course_id);
             homework.setAttachment_url(String.join(",", savedUrls));
-            homework.setTeacher_id(teacher_id);
+            homework.setTeacher_id(UserContext.getCurrentUserId());
             homework.setUser_id(user.getUserId());
             homework.setStatus("0");
             homeworkService.assignHomework(homework);
@@ -181,9 +179,8 @@ public class TaskController
 
     // 提交作业url
     @LogAction("用户提交作业")
-    @RequestMapping(value = "/homework/{user_id}/submit", method = RequestMethod.POST)
+    @RequestMapping(value = "/homework/submit", method = RequestMethod.POST)
     public CommonResponse<Homework> submitHomework(
-            @PathVariable int user_id,
             @RequestPart("homework") HomeworkDTO homeworkDTO,
             @RequestPart(value = "files", required = false)MultipartFile[] files
     )
@@ -192,8 +189,8 @@ public class TaskController
         List<String> allowedTypes = Arrays.asList(".pdf", ".docx", ".zip", ".rar", ".xlsx");
 
         // 保存路径和URL前缀
-        String uploadDir = uploadRoot + "submissions/" + user_id + "/";
-        String urlPrefix = "http://localhost:8080/files/submissions/" + user_id + "/";
+        String uploadDir = uploadRoot + "submissions/" + UserContext.getCurrentUserId() + "/";
+        String urlPrefix = "http://localhost:8080/files/submissions/" + UserContext.getCurrentUserId() + "/";
 
         // 创建保存目录（如不存在）
         File dir = new File(uploadDir);
@@ -241,20 +238,20 @@ public class TaskController
         Homework homework = new Homework();
         BeanUtils.copyProperties(homeworkDTO, homework);
         homework.setSubmit_url(String.join(",", savedUrls));
-        homework.setUser_id(user_id);
+        homework.setUser_id(UserContext.getCurrentUserId());
         return homeworkService.submitHomework(homework);
     }
 
     // 评价作业url  必需: 课程id,学生id,标题,内容,评价,成绩
     @LogAction("教师评价作业")
-    @RequestMapping(value = "/homework/{teacher_id}/remark", method = RequestMethod.POST)
+    @RequestMapping(value = "/homework/remark", method = RequestMethod.POST)
     public CommonResponse<Homework> remarkHomework(
-            @PathVariable int teacher_id,
             @RequestPart("homework") HomeworkDTO homeworkDTO
     )
     {
         Homework homework = new Homework();
         BeanUtils.copyProperties(homeworkDTO, homework);
+        homework.setTeacher_id(UserContext.getCurrentUserId());
         return homeworkService.remarkHomework(homework);
     }
 
@@ -343,6 +340,7 @@ public class TaskController
 
         BeanUtils.copyProperties(questionRecordDTO, questionRecord);
         questionRecord.setUser_id(UserContext.getCurrentUserId());
+        questionRecord.setExam_id(exam_id);
 
         return examService.saveOrUpdateQuestionRecord(questionRecord);
     }
