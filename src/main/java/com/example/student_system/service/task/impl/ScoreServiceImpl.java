@@ -7,6 +7,8 @@ import com.example.student_system.common.ResponseCode;
 import com.example.student_system.domain.entity.task.Score;
 import com.example.student_system.domain.vo.task.ScoreVO;
 import com.example.student_system.mapper.task.ScoreMapper;
+import com.example.student_system.service.task.ExamService;
+import com.example.student_system.service.task.HomeworkService;
 import com.example.student_system.service.task.ScoreService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,12 @@ public class ScoreServiceImpl implements ScoreService
     @Autowired
     private ScoreMapper scoreMapper;
 
+    // 用于获取各部分成绩
+    @Autowired
+    private ExamService examService;
+    @Autowired
+    private HomeworkService homeworkService;
+
     @Override
     public CommonResponse<String> insertScoreRecord(int user_id, int course_id)
     {
@@ -30,6 +38,7 @@ public class ScoreServiceImpl implements ScoreService
         score.setUser_id(user_id);
         score.setCourse_id(course_id);
         //TODO:通过课程表获取课程名
+        //score.setCourse_name();
 
         score.setHomework_score(null);
         score.setExam_score(null);
@@ -120,6 +129,33 @@ public class ScoreServiceImpl implements ScoreService
         return CommonResponse.createForSuccess(
                 ResponseCode.SUCCESS.getCode(),
                 ResponseCode.SUCCESS.getDescription()
+        );
+    }
+
+    @Override
+    public CommonResponse<ScoreVO> updateAndGetScore(int user_id, int course_id)
+    {
+        //TODO: 完善video_score的获取逻辑
+        BigDecimal video_score = new BigDecimal("100");
+        // homework和exam都是有对应的考试和作业才会有值,课程没有考试或作业那么成绩为null
+        BigDecimal homework_score = homeworkService.getHomeworkScore(user_id, course_id);
+        BigDecimal exam_score = examService.getAverageExamScore(user_id, course_id);
+
+        updateVideoScore(user_id, course_id, video_score);
+        updateHomeworkScore(user_id,course_id,homework_score);
+        updateExamScore(user_id, course_id, exam_score);
+
+        ScoreVO scoreVO = new ScoreVO();
+        scoreVO.setVideo_score(video_score);
+        scoreVO.setHomework_score(homework_score);
+        scoreVO.setExam_score(exam_score);
+        scoreVO.setCourse_id(course_id);
+        // 课程名?
+
+        return CommonResponse.createForSuccess(
+                ResponseCode.SCORE_FETCH_AND_UPDATE_SUCCESS.getCode(),
+                ResponseCode.SCORE_FETCH_AND_UPDATE_SUCCESS.getDescription(),
+                scoreVO
         );
     }
 

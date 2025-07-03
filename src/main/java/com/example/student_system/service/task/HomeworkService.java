@@ -12,14 +12,14 @@ import java.util.List;
 
 public interface HomeworkService
 {
-    public boolean isHomeworkExists(String homework_title, int course_id, int user_id);
-    public CommonResponse<Homework> assignHomework(Homework newHomework);
-    public CommonResponse<List<Homework>> getHomeworkByUserid(int user_id);
-    public CommonResponse<List<Homework>> getHomeworkByUserid(int user_id, int course_id);
-    public CommonResponse<HomeworkVO> getHomeworkDetail(int course_id, String title);
-    public CommonResponse<Homework> submitHomework(Homework homework);
-    public CommonResponse<Homework> remarkHomework(Homework homework);
-    public CommonResponse<Homework> syncHomework(int user_id, int course_id);
-    public CommonResponse<BigDecimal> getHomeworkScore(int user_id, int course_id);
+    boolean isHomeworkExists(String homework_title, int course_id, int user_id);
+    CommonResponse<Homework> assignHomework(Homework newHomework);
+    CommonResponse<List<Homework>> getHomeworkByUserid(int user_id);
+    CommonResponse<List<Homework>> getHomeworkByUserid(int user_id, int course_id);
+    CommonResponse<HomeworkVO> getHomeworkDetail(int user_id, int course_id, String title);
+    CommonResponse<Homework> submitHomework(Homework homework);
+    CommonResponse<Homework> remarkHomework(Homework homework);
+    CommonResponse<Homework> syncHomework(int user_id, int course_id);
+    BigDecimal getHomeworkScore(int user_id, int course_id);
 
 }

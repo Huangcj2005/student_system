@@ -13,4 +13,5 @@ public interface ScoreService
     CommonResponse<String> updateVideoScore(int user_id, int course_id, BigDecimal score);
     CommonResponse<String> updateHomeworkScore(int user_id, int course_id, BigDecimal score);
     CommonResponse<String> updateExamScore(int user_id, int course_id, BigDecimal score);
+    CommonResponse<ScoreVO> updateAndGetScore(int user_id, int course_id);
 }

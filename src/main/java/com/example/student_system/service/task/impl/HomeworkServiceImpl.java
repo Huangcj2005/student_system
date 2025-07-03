@@ -36,6 +36,7 @@ public class HomeworkServiceImpl implements HomeworkService
         return !homeworkList.isEmpty();
     }
 
+    //FIXME:存在一定逻辑漏洞
     @Override
     public CommonResponse<Homework> assignHomework(Homework newHomework) {
         //作业可发布逻辑:
@@ -88,12 +89,19 @@ public class HomeworkServiceImpl implements HomeworkService
         );
     }
 
+
+    /**
+     这里只有登录的学生才能获取作业详情
+     VO中 score submit_url submit_content 和 remark 属性可能为空(取决于用户是否已提交和老师是否已批阅)
+     status字段 0未交 1已交未阅 2已阅
+     */
     @Override
-    public CommonResponse<HomeworkVO> getHomeworkDetail(int course_id, String title)
+    public CommonResponse<HomeworkVO> getHomeworkDetail(int user_id, int course_id, String title)
     {
         QueryWrapper<Homework> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("course_id", course_id)
-                .eq("title", title);
+                .eq("title", title)
+                .eq("user_id", user_id);
         Homework homework = homeworkMapper.selectOne(queryWrapper);
         HomeworkVO homeworkVO = new HomeworkVO();
         BeanUtils.copyProperties(homeworkVO, homework);
@@ -147,13 +155,17 @@ public class HomeworkServiceImpl implements HomeworkService
     }
 
     @Override
-    public CommonResponse<BigDecimal> getHomeworkScore(int user_id, int course_id)
+    public BigDecimal getHomeworkScore(int user_id, int course_id)
     {
         // 先获取对应用户对应课程的所有作业
         QueryWrapper<Homework> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_id", user_id)
                 .eq("course_id", course_id);
         List<Homework> homeworkList = homeworkMapper.selectList(queryWrapper);
+
+        // 如果作业数为0, 直接返回null
+        if(homeworkList.isEmpty())
+            return null;
 
         // 设置总分
         BigDecimal sum = new BigDecimal("0");
@@ -169,11 +181,7 @@ public class HomeworkServiceImpl implements HomeworkService
         }
         final_score = sum.divide(homework_num, RoundingMode.HALF_UP);
 
-        return CommonResponse.createForSuccess(
-                ResponseCode.HOMEWORK_SCORE_FETCH_SUCCESS.getCode(),
-                ResponseCode.HOMEWORK_SCORE_FETCH_SUCCESS.getDescription(),
-                final_score
-        );
+        return final_score;
     }
 
 
