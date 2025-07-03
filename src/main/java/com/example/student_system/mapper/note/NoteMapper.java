@@ -1,4 +1,4 @@
-package com.example.student_system.mapper;
+package com.example.student_system.mapper.note;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.springframework.stereotype.Repository;
