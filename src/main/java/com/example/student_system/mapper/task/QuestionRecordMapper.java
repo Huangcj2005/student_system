@@ -1,0 +1,10 @@
+package com.example.student_system.mapper.task;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.example.student_system.domain.entity.task.QuestionRecord;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface QuestionRecordMapper extends BaseMapper<QuestionRecord>
+{
+}
