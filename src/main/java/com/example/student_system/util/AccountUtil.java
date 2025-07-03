@@ -8,6 +8,7 @@ import lombok.Data;
 
 import java.util.Date;
 
+
 @Data
 public class AccountUtil {
     public static UserInfo UserToInfo(User user){
@@ -41,7 +42,6 @@ public class AccountUtil {
     public static User InfoToUser(ChangeUserInfoDTO userInfoDTO,User user){
         user.setUserName(userInfoDTO.getUserName());
         user.setRole(userInfoDTO.getRole());
-        user.setPhoto(userInfoDTO.getPhoto());
         user.setProfile(userInfoDTO.getProfile());
         user.setUpdateTime(new Date(System.currentTimeMillis()));
 

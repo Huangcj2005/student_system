@@ -13,6 +13,7 @@ import com.example.student_system.util.UserContext;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/user/")
@@ -64,6 +65,20 @@ public class UserController {
         return userInfoService.updateUserInfo(userInfoDTO,userId);
     }
 
+    @PostMapping("update/photo")
+    @LogAction("更新用户头像")
+    public CommonResponse<String> updatePhoto(@RequestParam("file") MultipartFile file){
+        Integer userId = UserContext.getCurrentUserId();
+        if (userId == null) {
+            return CommonResponse.createForError(
+                    ResponseCode.TOKEN_INVALID.getCode(),
+                    ResponseCode.TOKEN_INVALID.getDescription()
+            );
+        }
+
+        return userInfoService.updateUserPhoto(userId, file);
+    }
+    
     @PostMapping("update/pwd")
     @LogAction("更新用户密码")
     public CommonResponse<String> updatePwd(@Valid @RequestBody ChangePasswordDTO passwordDTO) {

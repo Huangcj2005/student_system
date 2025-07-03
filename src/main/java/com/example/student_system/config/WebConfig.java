@@ -4,6 +4,7 @@ import com.example.student_system.filter.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
@@ -24,5 +25,11 @@ public class WebConfig implements WebMvcConfigurer {
                         "/error",             // 错误页面
                         "/favicon.ico"        // 网站图标
                 );
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry){
+        registry.addResourceHandler("/avatar/**")
+                .addResourceLocations("file:" + System.getProperty("user.dir") + "/avatar/");
     }
 } 
