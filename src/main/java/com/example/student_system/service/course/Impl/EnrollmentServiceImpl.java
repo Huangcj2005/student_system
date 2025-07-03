@@ -9,7 +9,7 @@ import com.example.student_system.domain.entity.course.Enrollment;
 import com.example.student_system.domain.vo.CourseVo;
 import com.example.student_system.mapper.CourseMapper;
 import com.example.student_system.mapper.EnrollmentMapper;
-import com.example.student_system.mapper.UserMapper;
+import com.example.student_system.mapper.account.UserMapper;
 import com.example.student_system.service.course.EnrollmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
