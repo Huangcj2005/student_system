@@ -43,6 +43,7 @@ public class HomeworkServiceImpl implements HomeworkService
         //1.不同班级可以有相同标题的作业
         //2.相同班级不可以存在相同标题的作业
         //3.判断逻辑：找到了所有同课程同标题的作业->不能有相同的学生拥有同名作业
+        System.out.println(1);
         if(isHomeworkExists(newHomework.getHomework_title(), newHomework.getCourse_id(), newHomework.getUser_id()))
             return CommonResponse.createForError(
                     ResponseCode.HOMEWORK_EXISTS.getCode(),

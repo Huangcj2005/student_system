@@ -86,6 +86,7 @@ public enum ResponseCode {
     SUFFIX_NOT_ALLOWED(2201, "不支持的附件类型"),
     UPLOAD_FAILED(2202, "文件上传失败"),
     HOMEWORK_ASSIGN_FAIL(2203, "课程没有学生"),
+    HOMEWORK_JSON_ERROR(2204, "Homework的JSON格式错误"),
 
     PAPER_GENERATE_FAILED(2303, "试卷生成失败")
 

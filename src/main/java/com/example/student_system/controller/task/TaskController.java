@@ -20,18 +20,20 @@ import com.example.student_system.service.course.EnrollmentService;
 import com.example.student_system.service.task.ExamService;
 import com.example.student_system.service.task.HomeworkService;
 import com.example.student_system.util.UserContext;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
-@Controller
+@RestController
 @RequestMapping("/task")
 public class TaskController
 {
@@ -76,22 +78,41 @@ public class TaskController
         return homeworkService.getHomeworkDetail(UserContext.getCurrentUserId() ,course_id, title);
     }
 
+    @GetMapping("/getCurrentUrl")
+    public String getCurrentUrl(HttpServletRequest request) {
+        String currentUrl = request.getRequestURL().toString();
+        return "Current URL: " + currentUrl;
+    }
 
     // 发布作业url，需要前段将作业基本信息放在assignment字段中，文件放在files当中
     @LogAction("教师发布作业")
-    @RequestMapping(value = "/homework/{course_id}/assign", method = RequestMethod.POST)
+    @PostMapping(value = "/homework/{course_id}/assign")
     public CommonResponse<Homework> assignHomework(
             @PathVariable int course_id,
-            @RequestPart("homework") HomeworkDTO homeworkDTO,
+            @RequestPart("homework") String homeworkJson,
             @RequestPart(value = "files", required = false)MultipartFile[] files
     )
     {
+
+        System.out.println(homeworkJson);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+        HomeworkDTO homeworkDTO;
+        try {
+            homeworkDTO = objectMapper.readValue(homeworkJson, HomeworkDTO.class);
+        } catch (IOException e) {
+            return CommonResponse.createForError(
+                    ResponseCode.HOMEWORK_JSON_ERROR.getCode(),
+                    ResponseCode.HOMEWORK_JSON_ERROR.getDescription()
+            );
+        }
+        System.out.println(homeworkDTO);
         // 设置允许的文件格式
         List<String> allowedTypes = Arrays.asList(".pdf", ".docx", ".zip", ".rar", ".xlsx");
 
         // 保存路径和URL前缀
-        String uploadDir = uploadRoot + "assignments/" + homeworkDTO.getCourse_id() + "/";
-        String urlPrefix = "http://localhost:8080/files/assignments/" + homeworkDTO.getCourse_id() + "/";
+        String uploadDir = uploadRoot + "assignments/" + course_id + "/";
+        String urlPrefix = "http://localhost:8080/files/assignments/" + course_id + "/";
 
         // 创建保存目录（如不存在）
         File dir = new File(uploadDir);
@@ -100,21 +121,23 @@ public class TaskController
 
         List<String> savedUrls = new ArrayList<>();
         // 获取对应课程下的所有用户
-        List<User> userList = enrollmentService.getUsersByCourseId(homeworkDTO.getCourse_id()).getData();
-
+        List<User> userList = enrollmentService.getUsersByCourseId(course_id).getData();
+        System.out.println(222);
         // 没有学生选则直接报错
         if (userList.isEmpty())
         {
+            System.out.println(333);
             return CommonResponse.createForError(
                     ResponseCode.HOMEWORK_ASSIGN_FAIL.getCode(),
                     ResponseCode.HOMEWORK_ASSIGN_FAIL.getDescription()
             );
         }
+        System.out.println(userList);
 
         // 先对标题可行性判断
         for(User user : userList)
         {
-            if(homeworkService.isHomeworkExists(homeworkDTO.getHomework_title(), homeworkDTO.getCourse_id(), user.getUserId()))
+            if(homeworkService.isHomeworkExists(homeworkDTO.getHomework_title(), course_id, user.getUserId()))
                 return CommonResponse.createForError(
                         ResponseCode.HOMEWORK_EXISTS.getCode(),
                         ResponseCode.HOMEWORK_EXISTS.getDescription()
@@ -171,9 +194,10 @@ public class TaskController
             homework.setStatus("0");
             homeworkService.assignHomework(homework);
         }
+
         return CommonResponse.createForSuccess(
                 ResponseCode.HOMEWORK_ASSIGN_SUCCESS.getCode(),
-                ResponseCode.USER_REGISTER_SUCCESS.getDescription()
+                ResponseCode.HOMEWORK_ASSIGN_SUCCESS.getDescription()
         );
     }
 
@@ -305,7 +329,7 @@ public class TaskController
     }
 
     // 教师创建考试
-    @RequestMapping(value = "/exam/{course_id/create}", method = RequestMethod.POST)
+    @RequestMapping(value = "/exam/{course_id}/create", method = RequestMethod.POST)
     public CommonResponse<Exam> createExam(
             @PathVariable int course_id,
             @RequestPart("exam")ExamDTO examDTO
