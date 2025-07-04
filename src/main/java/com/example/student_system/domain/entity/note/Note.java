@@ -12,7 +12,7 @@ import java.util.Date;
 public class Note {
     @TableId("id")
     private int id;
-    private int note_id;
+    private String note_id;
     private int user_id;
     private int course_id;
     private String course_name;

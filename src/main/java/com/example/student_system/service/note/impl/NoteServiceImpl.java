@@ -1,12 +1,14 @@
 package com.example.student_system.service.note.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.example.student_system.common.CommonResponse;
 import com.example.student_system.common.ResponseCode;
 import com.example.student_system.domain.dto.note.NoteInsertDTO;
 import com.example.student_system.domain.dto.note.NoteUpdateDTO;
+import com.example.student_system.domain.entity.course.LearnRecord;
 import com.example.student_system.domain.entity.note.Note;
-import com.example.student_system.domain.vo.NoteVo;
+import com.example.student_system.domain.vo.note.NoteVo;
 import com.example.student_system.mapper.note.NoteMapper;
 import com.example.student_system.service.note.NoteService;
 import org.springframework.beans.BeanUtils;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service("NoteService")
@@ -29,11 +32,10 @@ public class NoteServiceImpl implements NoteService {
         BeanUtils.copyProperties(dto, note);
         note.setCreate_time(new Date());
         note.setUpdate_time(new Date());
+        note.setNote_id(UUID.randomUUID().toString());
 
         int result = noteMapper.insert(note);
         if (result > 0) {
-            note.setNote_id(note.getId());
-            noteMapper.updateById(note);
             return CommonResponse.createForSuccess(
                     ResponseCode.NOTE_ASSIGN_SUCCESS.getCode(),
                     ResponseCode.NOTE_ASSIGN_SUCCESS.getDescription()
@@ -73,30 +75,21 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public CommonResponse<String> updateNoteById(int note_id, NoteUpdateDTO dto) {
-        Note note = new Note();
-        note.setNote_content(dto.getNoteContent());
-        note.setUpdate_time(new Date());
+    public CommonResponse<String> updateNoteById(String note_id, NoteUpdateDTO dto) {
+        UpdateWrapper<Note> wrapper = new UpdateWrapper<>();
+        wrapper.eq("note_id", note_id)
+                .set("content",dto.getNote_content())
+                .set("update_time",new Date());
+        noteMapper.update(wrapper);
 
-        QueryWrapper<Note> wrapper = new QueryWrapper<>();
-        wrapper.eq("note_id", note_id);
-        int result = noteMapper.update(note, wrapper);
-
-        if (result > 0) {
-            return CommonResponse.createForSuccess(
+        return CommonResponse.createForSuccess(
                     ResponseCode.NOTE_UPDATE_SUCCESS.getCode(),
                     ResponseCode.NOTE_UPDATE_SUCCESS.getDescription()
             );
-        } else {
-            return CommonResponse.createForError(
-                    ResponseCode.NOTE_UPDATE_FAIL.getCode(),
-                    ResponseCode.NOTE_UPDATE_FAIL.getDescription()
-            );
-        }
     }
 
     @Override
-    public CommonResponse<String> deleteNoteById(int note_id) {
+    public CommonResponse<String> deleteNoteById(String note_id) {
         QueryWrapper<Note> wrapper = new QueryWrapper<>();
         wrapper.eq("note_id", note_id);
         int result = noteMapper.delete(wrapper);
