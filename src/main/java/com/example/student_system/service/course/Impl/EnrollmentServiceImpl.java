@@ -10,12 +10,13 @@ import com.example.student_system.domain.entity.course.Enrollment;
 import com.example.student_system.domain.vo.CourseVo;
 import com.example.student_system.mapper.course.CourseMapper;
 import com.example.student_system.mapper.course.EnrollmentMapper;
-import com.example.student_system.mapper.UserMapper;
+import com.example.student_system.mapper.account.UserMapper;
 import com.example.student_system.service.course.EnrollmentService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,8 +40,14 @@ public class EnrollmentServiceImpl implements EnrollmentService
         List<Integer> userIdList=enrollmentList.stream()
                 .map(Enrollment::getUser_id)
                 .collect(Collectors.toList());
+        System.out.println(enrollmentList);
+        List<User> userList = new ArrayList<>();
+        for(Integer userId : userIdList){
+            QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+            userQueryWrapper.eq("user_id",userId);
+            userList.add(userMapper.selectOne(userQueryWrapper));
+        }
 
-        List<User> userList=userMapper.selectBatchIds(userIdList);
         if (!userList.isEmpty())
         {
             return CommonResponse.createForSuccess(
@@ -51,10 +58,9 @@ public class EnrollmentServiceImpl implements EnrollmentService
         }
         else
         {
-            return CommonResponse.createForSuccess(
-                    ResponseCode.USER_FETCH_SUCCESS.getCode(),
-                    ResponseCode.USER_FETCH_SUCCESS.getDescription(),
-                    userList
+            return CommonResponse.createForError(
+                    ResponseCode.USER_FETCH_FAIL.getCode(),
+                    ResponseCode.USER_FETCH_FAIL.getDescription()
             );
         }
 

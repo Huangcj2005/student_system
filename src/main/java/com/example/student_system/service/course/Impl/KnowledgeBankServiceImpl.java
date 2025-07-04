@@ -65,10 +65,9 @@ public class KnowledgeBankServiceImpl implements KnowledgeBankService
         }
         else
         {
-            return CommonResponse.createForSuccess(
+            return CommonResponse.createForError(
                     ResponseCode.KNOWLEDGEBANK_FETCH_FAIL.getCode(),
-                    ResponseCode.KNOWLEDGEBANK_FETCH_FAIL.getDescription(),
-                    knowledgeBankVoList
+                    ResponseCode.KNOWLEDGEBANK_FETCH_FAIL.getDescription()
             );
         }
 

@@ -47,10 +47,9 @@ public class CourseServiceImpl implements CourseService {
         }
         else
         {
-            return CommonResponse.createForSuccess(
+            return CommonResponse.createForError(
                     ResponseCode.COURSE_LIST_FETCH_FAIL.getCode(),
-                    ResponseCode.COURSE_LIST_FETCH_FAIL.getDescription(),
-                    courseVoList
+                    ResponseCode.COURSE_LIST_FETCH_FAIL.getDescription()
             );
         }
 
