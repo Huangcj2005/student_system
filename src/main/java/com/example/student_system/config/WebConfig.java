@@ -7,6 +7,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -27,12 +28,11 @@ public class WebConfig implements WebMvcConfigurer {
                         "/favicon.ico"        // 网站图标
                 );
     }
+
     @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry)
-    {
-        // 将 域名/files/... 映射到 对应地址获取文件
-        registry.addResourceHandler("/files/**")
-                .addResourceLocations("file:D:/uploads");
+    public void addResourceHandlers(ResourceHandlerRegistry registry){
+        registry.addResourceHandler("/avatar/**")
+                .addResourceLocations("file:" + System.getProperty("user.dir") + "/avatar/");
     }
 
     @Override
@@ -45,4 +45,3 @@ public class WebConfig implements WebMvcConfigurer {
                 .maxAge(3600);  // 预检请求的缓存时间，单位秒
     }
 } 
-

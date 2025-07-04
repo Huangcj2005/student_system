@@ -4,7 +4,7 @@ import com.example.student_system.common.CommonResponse;
 import com.example.student_system.domain.dto.account.ChangePrivacyDTO;
 import com.example.student_system.domain.dto.account.ChangeUserInfoDTO;
 import com.example.student_system.domain.dto.account.UserInfo;
-import com.example.student_system.domain.entity.account.UserPrivacy;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface UserInfoService {
     /**
@@ -42,5 +42,13 @@ public interface UserInfoService {
      * @param privacyDTO 用户隐私对象
      */
     CommonResponse<String> updatePrivacy(int userId, ChangePrivacyDTO privacyDTO);
+
+    /**
+     * 根据用户 ID 更新用户头像
+     * @param userId 用户 ID
+     * @param file 头像文件
+     * @return 用户头像 url
+     */
+    CommonResponse<String> updateUserPhoto(int userId, MultipartFile file);
 
 }

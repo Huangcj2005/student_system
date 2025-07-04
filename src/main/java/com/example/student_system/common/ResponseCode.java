@@ -18,6 +18,7 @@ public enum ResponseCode {
     USER_INFO_UPDATE_SUCCESS(1010,"用户信息更新成功"),
     USER_PASSWORD_UPDATE_SUCCESS(1011,"用户密码更新成功"),
     USER_PRIVACY_UPDATE_SUCCESS(1012,"用户隐私更新成功"),
+    USER_PHOTO_UPDATE_SUCCESS(1013, "用户头像更新成功"),
 
 
     // --- 11xx:课程业务成功状态码
@@ -88,6 +89,10 @@ public enum ResponseCode {
     USERNAME_ALREADY_USED(2011,"用户名已被使用"),
     RATE_LIMIT_EXCEEDED(2012,"请求过于频繁，请稍后再试"),
     RESOURCE_NOT_FOUND(2013,"请求的资源不存在"),
+    // --- 202x:用户隐私更新失败
+    USER_PHOTO_UPDATE_ERROR(2020, "传入头像不能为空"),
+
+
     // --- 21xx:课程业务失败状态码
     NOTE_DELETE_FAIL(2100,"笔记删除失败"),
     NOTE_FETCH_FAIL(2101,"没有笔记"),

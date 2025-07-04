@@ -10,6 +10,5 @@ public class ChangeUserInfoDTO {
     @NotBlank(message = "请选择性别")
     private String sex;
     private String role;
-    private String photo;
     private String profile;
 }
