@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Date;
@@ -164,7 +165,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                 quality -= 0.1f;
             } while (dest.length() > 1024 * 1024 && quality > 0.1f);
 
-            String url = "/static/avatar/" + fileName;
+            String url = uploadDir + fileName;
 
             // 数据库更新
             User user = QueryUtil.getUserById(userMapper,userId);
