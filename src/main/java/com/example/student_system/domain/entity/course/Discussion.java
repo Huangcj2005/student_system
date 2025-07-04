@@ -14,6 +14,7 @@ public class Discussion {
     private String discussion_id;
     private int user_id;
     private int course_id;
+    private String chapter_id;
     private String course_name;
     private String chapter_name;
     private String content;

@@ -1,23 +1,25 @@
 package com.example.student_system.service.course.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.example.student_system.common.CommonResponse;
 import com.example.student_system.common.ResponseCode;
 import com.example.student_system.domain.dto.course.LearnRecordInsertDTO;
 import com.example.student_system.domain.dto.course.LearnRecordUpdateDTO;
 import com.example.student_system.domain.entity.course.LearnRecord;
-import com.example.student_system.domain.vo.LearnRecordVo;
+import com.example.student_system.domain.vo.course.LearnRecordVo;
 import com.example.student_system.mapper.course.LearnRecordMapper;
 import com.example.student_system.service.course.LearnRecordService;
+import com.example.student_system.util.UserContext;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service("LearnRecordService")
 public class LearnRecordServiceImpl implements LearnRecordService {
+    @Autowired
     private LearnRecordMapper learnRecordMapper;
     @Override
     public CommonResponse<String> insertLearnRecord(LearnRecordInsertDTO dto) {
@@ -35,15 +37,14 @@ public class LearnRecordServiceImpl implements LearnRecordService {
 
     @Override
     public CommonResponse<String> updateLearnRecord(int course_id, String chapter_id, LearnRecordUpdateDTO dto) {
-        LearnRecord learnRecord = new LearnRecord();
-        learnRecord.setProgress(dto.getProgress());
-        learnRecord.setStudy_time(dto.getStudy_time());
-        learnRecord.setUpdate_time(new Date());
 
-        QueryWrapper<LearnRecord> wrapper = new QueryWrapper<>();
+        UpdateWrapper<LearnRecord> wrapper = new UpdateWrapper<>();
         wrapper.eq("course_id", course_id)
-                .eq("chapter_id",chapter_id);
-        learnRecordMapper.update(learnRecord,wrapper);
+                .eq("chapter_id",chapter_id)
+                        .set("progress",dto.getProgress())
+                                .set("study_time",dto.getStudy_time())
+                                        .set("update_time",new Date());
+        learnRecordMapper.update(wrapper);
 
         return CommonResponse.createForSuccess(
                 ResponseCode.LEARN_RECORD_UPDATE_SUCCESS.getCode(),

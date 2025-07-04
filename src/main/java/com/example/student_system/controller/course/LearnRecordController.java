@@ -3,13 +3,11 @@ package com.example.student_system.controller.course;
 import com.example.student_system.common.CommonResponse;
 import com.example.student_system.domain.dto.course.LearnRecordInsertDTO;
 import com.example.student_system.domain.dto.course.LearnRecordUpdateDTO;
-import com.example.student_system.domain.entity.course.LearnRecord;
-import com.example.student_system.domain.vo.LearnRecordVo;
+import com.example.student_system.domain.vo.course.LearnRecordVo;
 import com.example.student_system.service.course.LearnRecordService;
+import com.example.student_system.util.UserContext;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/learnRecords")
@@ -20,6 +18,7 @@ public class LearnRecordController {
     @PostMapping("/insert")
     public CommonResponse<String> insertLearnRecord(@RequestBody LearnRecordInsertDTO dto)
     {
+        dto.setUser_id(UserContext.getCurrentUserId());
         return learnRecordService.insertLearnRecord(dto);
     }
 
@@ -29,9 +28,10 @@ public class LearnRecordController {
         return learnRecordService.updateLearnRecord(course_id,chapter_id,dto);
     }
 
-    @GetMapping("/get/user_id/{user_id}/course_id/{course_id}/chapter_id/{chapter_id}")
-    public CommonResponse<LearnRecordVo> getLearnRecordVo(@PathVariable int user_id,@PathVariable int course_id, @PathVariable String chapter_id)
+    @GetMapping("/get/course_id/{course_id}/chapter_id/{chapter_id}")
+    public CommonResponse<LearnRecordVo> getLearnRecordVo(@PathVariable int course_id, @PathVariable String chapter_id)
     {
+        Integer user_id= UserContext.getCurrentUserId();
         return learnRecordService.getLearnRecord(user_id,course_id,chapter_id);
     }
 

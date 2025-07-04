@@ -2,8 +2,9 @@ package com.example.student_system.controller.course;
 
 import com.example.student_system.common.CommonResponse;
 import com.example.student_system.domain.dto.course.DiscussionDTO;
-import com.example.student_system.domain.vo.DiscussionVo;
+import com.example.student_system.domain.vo.course.DiscussionVo;
 import com.example.student_system.service.course.DiscussionService;
+import com.example.student_system.util.UserContext;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,12 +19,15 @@ public class DiscussionController {
     @PostMapping("/insertHead")
     public CommonResponse<String> insertHead(@RequestBody DiscussionDTO dto)
     {
+        dto.setUser_id(UserContext.getCurrentUserId());
         return discussionService.insertHeadDiscussion(dto);
     }
 
     @PostMapping("/insertFollow/discussion/{discussion_id}")
     public CommonResponse<String> insertFollow(@PathVariable String discussion_id, @RequestBody DiscussionDTO dto)
     {
+        dto.setUser_id(UserContext.getCurrentUserId());
+        dto.setReply_id(UserContext.getCurrentUserId());
         return discussionService.insertFollowDiscussion(discussion_id,dto);
     }
 
@@ -33,9 +37,10 @@ public class DiscussionController {
         return discussionService.getAllDiscussionIdsByChapter(chapter_id);
     }
 
-    @GetMapping("/getDiscussionIdByUser/user/{user_id}")
-    public CommonResponse<List<String>> getDiscussionIdByUser(@PathVariable int user_id)
+    @GetMapping("/getDiscussionIdByUser/user")
+    public CommonResponse<List<String>> getDiscussionIdByUser()
     {
+        Integer user_id=UserContext.getCurrentUserId();
         return discussionService.getDiscussionIdsByUser(user_id);
     }
 
@@ -45,9 +50,10 @@ public class DiscussionController {
         return discussionService.getBlockCountByChapter(chapter_id);
     }
 
-    @GetMapping("/getBlockCountByUser/user/{user_id}")
-    public CommonResponse<Integer> getBlockByUser(@PathVariable int user_id)
+    @GetMapping("/getBlockCountByUser/user")
+    public CommonResponse<Integer> getBlockByUser()
     {
+        Integer user_id=UserContext.getCurrentUserId();
         return discussionService.getBlockCountByUser(user_id);
     }
 
@@ -57,9 +63,9 @@ public class DiscussionController {
         return discussionService.getDiscussionById(discussion_id);
     }
 
-    @GetMapping("/getDiscussionByUser/user/{user_id}/discussion_id/{discussion_id}")
-    CommonResponse<List<DiscussionVo>> getDiscussionByUserId(@PathVariable int user_id,@PathVariable String discussion_id)
-    {
-        return discussionService.getDiscussionByUserId(user_id,discussion_id);
-    }
+//    @GetMapping("/getDiscussionByUser/user/{user_id}/discussion_id/{discussion_id}")
+//    CommonResponse<List<DiscussionVo>> getDiscussionByUserId(@PathVariable int user_id,@PathVariable String discussion_id)
+//    {
+//        return discussionService.getDiscussionByUserId(user_id,discussion_id);
+//    }
 }

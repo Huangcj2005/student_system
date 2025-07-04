@@ -2,8 +2,7 @@ package com.example.student_system.controller.course;
 
 import com.example.student_system.common.CommonResponse;
 import com.example.student_system.domain.dto.course.KnowledgeBankDTO;
-import com.example.student_system.domain.entity.course.KnowledgeBank;
-import com.example.student_system.domain.vo.KnowledgeBankVo;
+import com.example.student_system.domain.vo.course.KnowledgeBankVo;
 import com.example.student_system.service.course.KnowledgeBankService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;

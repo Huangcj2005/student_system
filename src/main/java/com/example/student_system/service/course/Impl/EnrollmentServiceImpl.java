@@ -7,7 +7,9 @@ import com.example.student_system.domain.dto.course.EnrollmentDTO;
 import com.example.student_system.domain.entity.account.User;
 import com.example.student_system.domain.entity.course.Course;
 import com.example.student_system.domain.entity.course.Enrollment;
-import com.example.student_system.domain.vo.CourseVo;
+import com.example.student_system.domain.vo.course.CourseVo;
+import com.example.student_system.domain.vo.course.DiscussionVo;
+import com.example.student_system.domain.vo.user.UserVo;
 import com.example.student_system.mapper.course.CourseMapper;
 import com.example.student_system.mapper.course.EnrollmentMapper;
 import com.example.student_system.mapper.account.UserMapper;
@@ -47,6 +49,8 @@ public class EnrollmentServiceImpl implements EnrollmentService
             userQueryWrapper.eq("user_id",userId);
             userList.add(userMapper.selectOne(userQueryWrapper));
         }
+
+
 
         if (!userList.isEmpty())
         {

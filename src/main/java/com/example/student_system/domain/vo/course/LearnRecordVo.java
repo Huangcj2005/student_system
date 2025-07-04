@@ -1,4 +1,4 @@
-package com.example.student_system.domain.vo;
+package com.example.student_system.domain.vo.course;
 
 import lombok.Data;
 
