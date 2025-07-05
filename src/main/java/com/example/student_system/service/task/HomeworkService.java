@@ -19,6 +19,7 @@ public interface HomeworkService
     CommonResponse<HomeworkVO> getHomeworkDetail(int user_id, int course_id, String title);
     CommonResponse<Homework> submitHomework(Homework homework);
     CommonResponse<Homework> remarkHomework(Homework homework);
+    CommonResponse<List<Homework>> getUnremarkedHomework(int course_id);
     CommonResponse<Homework> syncHomework(int user_id, int course_id);
     BigDecimal getHomeworkScore(int user_id, int course_id);
 

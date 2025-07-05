@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.example.student_system.common.CommonResponse;
 import com.example.student_system.common.ResponseCode;
 import com.example.student_system.domain.entity.task.*;
+import com.example.student_system.domain.vo.task.ExamScoreVO;
 import com.example.student_system.domain.vo.task.ExamVO;
 import com.example.student_system.domain.vo.task.PaperVO;
 import com.example.student_system.domain.vo.task.QuestionVO;
@@ -70,8 +71,6 @@ public class ExamServiceImpl implements ExamService
         // 生成问题列表
         List<QuestionVO> questionVOList = new ArrayList<>();
 
-        ExamRecord examRecord = new ExamRecord();
-        examRecord.setExam_id(exam_id);
         for(QuestionBank question : question_list)
         {
             QuestionVO questionVO = new QuestionVO();
@@ -80,22 +79,31 @@ public class ExamServiceImpl implements ExamService
             questionVO.setQuestion_content(question.getQuestion_content());
             questionVOList.add(questionVO);
 
+            ExamRecord examRecord = new ExamRecord();
+            examRecord.setExam_id(exam_id);
             examRecord.setQuestion_id(id_count);
             examRecord.setQuestion_type(question.getQuestion_type());
             examRecord.setQuestion_content(question.getQuestion_content());
             examRecord.setRight_answer(question.getQuestion_answer());
             examRecord.setCreate_time(new Date());
 
+            // 先检查是否已有试题，已有则删除
+            QueryWrapper<ExamRecord> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("exam_id", exam_id)
+                    .eq("question_id", id_count);
+            examRecordMapper.delete(queryWrapper);
+
+            // 将生成的问题插入至数据库
+            examRecordMapper.insert(examRecord);
+
             id_count++;
         }
-
-        // 将生成的问题插入至数据库
-        examRecordMapper.insert(examRecord);
 
         // 设置考试的状态为未开始
         UpdateWrapper<Exam> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("exam_id", exam_id)
                 .set("status", "0");
+        examMapper.update(updateWrapper);
 
         return CommonResponse.createForSuccess(
                 ResponseCode.PAPER_GENERATE_SUCCESS.getCode(),
@@ -159,9 +167,17 @@ public class ExamServiceImpl implements ExamService
                 //对于未发布的考试不计入列表中
                 if(updated_exam == null)
                     continue;
-                exam.setStatus(updated_exam.getStatus());;
+
+                // 已经考完的考试也不计入期中
+                QueryWrapper<ExamScore> examScoreQueryWrapper = new QueryWrapper<>();
+                examScoreQueryWrapper.eq("exam_id", exam.getExam_id());
+                if(examScoreMapper.selectOne(examScoreQueryWrapper) != null)
+                    continue;
+
+                exam.setStatus(updated_exam.getStatus());
+                newExamList.add(exam);
             }
-            newExamList.addAll(examList);
+
             queryWrapper.clear();
         }
 
@@ -183,6 +199,8 @@ public class ExamServiceImpl implements ExamService
     @Override
     public CommonResponse<QuestionRecord> saveOrUpdateQuestionRecord(QuestionRecord questionRecord)
     {
+        System.out.println(questionRecord);
+
         // 查询对应的答题记录
         QueryWrapper<QuestionRecord> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("exam_id", questionRecord.getExam_id())
@@ -280,7 +298,40 @@ public class ExamServiceImpl implements ExamService
 
         return CommonResponse.createForSuccess(
                 ResponseCode.PAPER_FETCH_SUCCESS.getCode(),
-                ResponseCode.PAPER_FETCH_SUCCESS.getDescription()
+                ResponseCode.PAPER_FETCH_SUCCESS.getDescription(),
+                paperVO
+        );
+    }
+
+    @Override
+    public CommonResponse<List<ExamScoreVO>> getFinishedExam(int user_id)
+    {
+        QueryWrapper<ExamScore> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", user_id);
+        List<ExamScore> examScoreList = examScoreMapper.selectList(queryWrapper);
+
+        List<ExamScoreVO> examScoreVOList = new ArrayList<>();
+
+        // 设置VO
+        for(ExamScore examScore : examScoreList)
+        {
+            // 根据exam_id查询基本信息
+            QueryWrapper<Exam> examQueryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("exam_id", examScore.getExam_id());
+            Exam exam = examMapper.selectOne(examQueryWrapper);
+
+            ExamScoreVO examScoreVO = new ExamScoreVO();
+
+            BeanUtils.copyProperties(exam, examScoreVO);
+            examScoreVO.setScore(examScore.getScore());
+
+            examScoreVOList.add(examScoreVO);
+        }
+
+        return CommonResponse.createForSuccess(
+                ResponseCode.FINISHED_EXAM_FETCH_SUCCESS.getCode(),
+                ResponseCode.FINISHED_EXAM_FETCH_SUCCESS.getDescription(),
+                examScoreVOList
         );
     }
 
@@ -295,8 +346,7 @@ public class ExamServiceImpl implements ExamService
         //在答题记录表中对比学生答案和用户答案
         QueryWrapper<QuestionRecord> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("exam_id", exam_id)
-                .eq("user_id", user_id)
-                .ne("delete_time", null);
+                .eq("user_id", user_id);
         List<QuestionRecord> questionRecordList = recordMapper.selectList(queryWrapper);
         BigDecimal sum = new BigDecimal("0");
 
@@ -324,6 +374,7 @@ public class ExamServiceImpl implements ExamService
             }
         }
 
+        System.out.println(sum);
         return sum;
     }
 

@@ -3,6 +3,7 @@ package com.example.student_system.service.task;
 import com.example.student_system.common.CommonResponse;
 import com.example.student_system.domain.entity.task.Exam;
 import com.example.student_system.domain.entity.task.QuestionRecord;
+import com.example.student_system.domain.vo.task.ExamScoreVO;
 import com.example.student_system.domain.vo.task.ExamVO;
 import com.example.student_system.domain.vo.task.PaperVO;
 import com.example.student_system.domain.vo.task.QuestionVO;
@@ -19,6 +20,7 @@ public interface ExamService
     CommonResponse<QuestionRecord> saveOrUpdateQuestionRecord(QuestionRecord questionRecord);
     CommonResponse<BigDecimal> submitExam(int user_id, int exam_id);
     CommonResponse<PaperVO> getPaper(int exam_id);
+    CommonResponse<List<ExamScoreVO>> getFinishedExam(int user_id);
     BigDecimal getExamScoreByUserId(int exam_id, int user_id, BigDecimal choice_score, BigDecimal judge_score, BigDecimal text_score);
     BigDecimal getAverageExamScore(int user_id, int course_id);
 }

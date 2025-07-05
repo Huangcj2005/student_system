@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.example.student_system.common.CommonResponse;
 import com.example.student_system.common.ResponseCode;
+import com.example.student_system.domain.entity.course.Course;
 import com.example.student_system.domain.entity.task.Score;
 import com.example.student_system.domain.vo.task.ScoreVO;
+import com.example.student_system.mapper.CourseMapper;
 import com.example.student_system.mapper.task.ScoreMapper;
 import com.example.student_system.service.task.ExamService;
 import com.example.student_system.service.task.HomeworkService;
@@ -23,6 +25,8 @@ public class ScoreServiceImpl implements ScoreService
 {
     @Autowired
     private ScoreMapper scoreMapper;
+    @Autowired
+    private CourseMapper courseMapper;
 
     // 用于获取各部分成绩
     @Autowired
@@ -37,8 +41,9 @@ public class ScoreServiceImpl implements ScoreService
         Score score = new Score();
         score.setUser_id(user_id);
         score.setCourse_id(course_id);
-        //TODO:通过课程表获取课程名
-        //score.setCourse_name();
+        QueryWrapper<Course> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("course_id", course_id);
+        score.setCourse_name(courseMapper.selectOne(queryWrapper).getCourse_name());
 
         score.setHomework_score(null);
         score.setExam_score(null);
@@ -77,6 +82,7 @@ public class ScoreServiceImpl implements ScoreService
         updateWrapper.eq("user_id", user_id)
                 .eq("course_id", course_id)
                 .set("delete_time", new Date());
+        scoreMapper.update(updateWrapper);
 
         return CommonResponse.createForSuccess(
                 ResponseCode.SUCCESS.getCode(),
@@ -93,6 +99,7 @@ public class ScoreServiceImpl implements ScoreService
                 .ne("delete_time", null)
                 .set("video_score", score)
                 .set("update_time", new Date());
+        scoreMapper.update(updateWrapper);
 
         return CommonResponse.createForSuccess(
                 ResponseCode.SUCCESS.getCode(),
@@ -109,6 +116,7 @@ public class ScoreServiceImpl implements ScoreService
                 .ne("delete_time", null)
                 .set("homework_score", score)
                 .set("update_time", new Date());
+        scoreMapper.update(updateWrapper);
 
         return CommonResponse.createForSuccess(
                 ResponseCode.SUCCESS.getCode(),
@@ -125,6 +133,7 @@ public class ScoreServiceImpl implements ScoreService
                 .ne("delete_time", null)
                 .set("exam_score", score)
                 .set("update_time", new Date());
+        scoreMapper.update(updateWrapper);
 
         return CommonResponse.createForSuccess(
                 ResponseCode.SUCCESS.getCode(),
@@ -135,6 +144,15 @@ public class ScoreServiceImpl implements ScoreService
     @Override
     public CommonResponse<ScoreVO> updateAndGetScore(int user_id, int course_id)
     {
+        // 先判断是否存在，如果不存在，则插入
+        QueryWrapper<Score> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", user_id)
+                .eq("course_id", course_id);
+        if(scoreMapper.selectOne(queryWrapper) == null)
+        {
+            insertScoreRecord(user_id, course_id);
+        }
+
         //TODO: 完善video_score的获取逻辑
         BigDecimal video_score = new BigDecimal("100");
         // homework和exam都是有对应的考试和作业才会有值,课程没有考试或作业那么成绩为null

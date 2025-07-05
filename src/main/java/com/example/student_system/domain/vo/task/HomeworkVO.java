@@ -13,8 +13,10 @@ public class HomeworkVO
     private String attachment_url;
     private String submit_url;
     private String submit_content;
+    private String status;
     private BigDecimal score;
     private String remark;
+    private Date submit_time;
     private Date start_time;
     private Date end_time;
 }

@@ -4,14 +4,13 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.List;
 
 @Data
-public class ExamVO
+public class ExamScoreVO
 {
     private String exam_name;
     private int exam_id;
-    private String status;
+    BigDecimal score;
     private Date start_time;
     private Date end_time;
 }

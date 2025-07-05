@@ -104,8 +104,17 @@ public class HomeworkServiceImpl implements HomeworkService
                 .eq("title", title)
                 .eq("user_id", user_id);
         Homework homework = homeworkMapper.selectOne(queryWrapper);
+
+        if(homework == null)
+        {
+            return CommonResponse.createForError(
+                    ResponseCode.HOMEWORK_NOT_EXISTS.getCode(),
+                    ResponseCode.HOMEWORK_NOT_EXISTS.name()
+            );
+        }
+
         HomeworkVO homeworkVO = new HomeworkVO();
-        BeanUtils.copyProperties(homeworkVO, homework);
+        BeanUtils.copyProperties(homework, homeworkVO);
 
         return CommonResponse.createForSuccess(
                 ResponseCode.HOMEWORK_DETAIL_FETCH_SUCCESS.getCode(),
@@ -122,6 +131,9 @@ public class HomeworkServiceImpl implements HomeworkService
         updateWrapper.eq("title", homework.getHomework_title())
                 .eq("course_id", homework.getCourse_id())
                 .eq("user_id", homework.getUser_id())
+                .set("submit_content", homework.getSubmit_content())
+                .set("submit_attachment", homework.getSubmit_url())
+                .set("submit_time", new Date())
                 .set("status", "1")
                 .set("update_time", new Date());
 
@@ -141,11 +153,27 @@ public class HomeworkServiceImpl implements HomeworkService
                 .eq("user_id", homework.getUser_id())
                 .set("status", "2")
                 .set("remark", homework.getRemark())
+                .set("score", homework.getScore())
                 .set("update_time", new Date());
+        homeworkMapper.update(updateWrapper);
 
         return CommonResponse.createForSuccess(
             ResponseCode.HOMEWORK_REMARK_SUCCESS.getCode(),
-            ResponseCode.HOMEWORK_ASSIGN_SUCCESS.getDescription()
+            ResponseCode.HOMEWORK_REMARK_SUCCESS.getDescription()
+        );
+    }
+
+    @Override
+    public CommonResponse<List<Homework>> getUnremarkedHomework(int course_id)
+    {
+        QueryWrapper<Homework> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("course_id", course_id)
+                .eq("status", "1");
+        List<Homework> homeworkList = homeworkMapper.selectList(queryWrapper);
+        return CommonResponse.createForSuccess(
+                ResponseCode.UNREMARKED_HOMEWORK_FETCH_SUCCESS.getCode(),
+                ResponseCode.UNREMARKED_HOMEWORK_FETCH_SUCCESS.getDescription(),
+                homeworkList
         );
     }
 

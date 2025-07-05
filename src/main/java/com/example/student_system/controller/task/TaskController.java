@@ -3,6 +3,7 @@ package com.example.student_system.controller.task;
 import com.example.student_system.annotation.LogAction;
 import com.example.student_system.common.CommonResponse;
 import com.example.student_system.common.ResponseCode;
+import com.example.student_system.domain.dto.account.UserInfo;
 import com.example.student_system.domain.dto.task.ExamDTO;
 import com.example.student_system.domain.dto.task.HomeworkDTO;
 import com.example.student_system.domain.dto.task.QuestionRecordDTO;
@@ -11,17 +12,14 @@ import com.example.student_system.domain.entity.task.Exam;
 import com.example.student_system.domain.entity.task.Homework;
 import com.example.student_system.domain.entity.task.QuestionRecord;
 import com.example.student_system.domain.vo.CourseVo;
-import com.example.student_system.domain.vo.task.ExamVO;
-import com.example.student_system.domain.vo.task.HomeworkVO;
-import com.example.student_system.domain.vo.task.PaperVO;
-import com.example.student_system.domain.vo.task.QuestionVO;
-import com.example.student_system.service.course.CourseService;
+import com.example.student_system.domain.vo.task.*;
+import com.example.student_system.service.account.UserInfoService;
 import com.example.student_system.service.course.EnrollmentService;
 import com.example.student_system.service.task.ExamService;
 import com.example.student_system.service.task.HomeworkService;
+import com.example.student_system.service.task.ScoreService;
 import com.example.student_system.util.UserContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -47,24 +45,54 @@ public class TaskController
     @Autowired
     private ExamService examService;
 
+    @Autowired
+    private UserInfoService userInfoService;
+
+    @Autowired
+    private ScoreService scoreService;
+
     private static final String uploadRoot = "D:/uploads/";
 
     // 查看个人所有作业url
     @LogAction("用户查看个人所有课程")
     @RequestMapping(value = "/homework", method = RequestMethod.GET)
-    public CommonResponse<List<Homework>> getHomework()
+    public CommonResponse<List<HomeworkVO>> getHomework()
     {
-        return homeworkService.getHomeworkByUserid(UserContext.getCurrentUserId());
+        List<HomeworkVO> homeworkVOList = new ArrayList<>();
+        List<Homework> homeworkList = homeworkService.getHomeworkByUserid(UserContext.getCurrentUserId()).getData();
+        for(Homework homework : homeworkList)
+        {
+            HomeworkVO homeworkVO = new HomeworkVO();
+            BeanUtils.copyProperties(homework, homeworkVO);
+            homeworkVOList.add(homeworkVO);
+        }
+        return CommonResponse.createForSuccess(
+                ResponseCode.HOMEWORK_LIST_FETCH_SUCCESS.getCode(),
+                ResponseCode.HOMEWORK_LIST_FETCH_SUCCESS.getDescription(),
+                homeworkVOList
+        );
     }
 
     // 查看个人选的某门课的全部作业
     @LogAction("用户查看课程全部作业")
     @RequestMapping(value = "/homework/{course_id}", method = RequestMethod.GET)
-    public CommonResponse<List<Homework>> getCourseHomework(
+    public CommonResponse<List<HomeworkVO>> getCourseHomework(
             @PathVariable int course_id
     )
     {
-        return homeworkService.getHomeworkByUserid(UserContext.getCurrentUserId(), course_id);
+        List<HomeworkVO> homeworkVOList = new ArrayList<>();
+        List<Homework> homeworkList = homeworkService.getHomeworkByUserid(UserContext.getCurrentUserId(), course_id).getData();
+        for(Homework homework : homeworkList)
+        {
+            HomeworkVO homeworkVO = new HomeworkVO();
+            BeanUtils.copyProperties(homework, homeworkVO);
+            homeworkVOList.add(homeworkVO);
+        }
+        return CommonResponse.createForSuccess(
+                ResponseCode.HOMEWORK_LIST_FETCH_SUCCESS.getCode(),
+                ResponseCode.HOMEWORK_LIST_FETCH_SUCCESS.getDescription(),
+                homeworkVOList
+        );
     }
 
     // 查看作业详情
@@ -72,17 +100,12 @@ public class TaskController
     @RequestMapping(value = "/homework/{course_id}/detail", method = RequestMethod.GET)
     public CommonResponse<HomeworkVO> getHomeworkDetail(
             @PathVariable int course_id,
-            @RequestParam String title
+            @RequestParam("title") String title
             )
     {
         return homeworkService.getHomeworkDetail(UserContext.getCurrentUserId() ,course_id, title);
     }
 
-    @GetMapping("/getCurrentUrl")
-    public String getCurrentUrl(HttpServletRequest request) {
-        String currentUrl = request.getRequestURL().toString();
-        return "Current URL: " + currentUrl;
-    }
 
     // 发布作业url，需要前段将作业基本信息放在assignment字段中，文件放在files当中
     @LogAction("教师发布作业")
@@ -106,7 +129,6 @@ public class TaskController
                     ResponseCode.HOMEWORK_JSON_ERROR.getDescription()
             );
         }
-        System.out.println(homeworkDTO);
         // 设置允许的文件格式
         List<String> allowedTypes = Arrays.asList(".pdf", ".docx", ".zip", ".rar", ".xlsx");
 
@@ -203,12 +225,25 @@ public class TaskController
 
     // 提交作业url
     @LogAction("用户提交作业")
-    @RequestMapping(value = "/homework/submit", method = RequestMethod.POST)
+    @RequestMapping(value = "/homework/{course_id}/submit", method = RequestMethod.POST)
     public CommonResponse<Homework> submitHomework(
-            @RequestPart("homework") HomeworkDTO homeworkDTO,
+            @PathVariable int course_id,
+            @RequestPart("homework") String homeworkJson,
             @RequestPart(value = "files", required = false)MultipartFile[] files
     )
     {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+        HomeworkDTO homeworkDTO;
+        try {
+            homeworkDTO = objectMapper.readValue(homeworkJson, HomeworkDTO.class);
+        } catch (IOException e) {
+            return CommonResponse.createForError(
+                    ResponseCode.HOMEWORK_JSON_ERROR.getCode(),
+                    ResponseCode.HOMEWORK_JSON_ERROR.getDescription()
+            );
+        }
+
         // 设置允许的文件格式
         List<String> allowedTypes = Arrays.asList(".pdf", ".docx", ".zip", ".rar", ".xlsx");
 
@@ -263,18 +298,38 @@ public class TaskController
         BeanUtils.copyProperties(homeworkDTO, homework);
         homework.setSubmit_url(String.join(",", savedUrls));
         homework.setUser_id(UserContext.getCurrentUserId());
+        homework.setCourse_id(course_id);
         return homeworkService.submitHomework(homework);
+    }
+
+    //FIXME:此处暴露了user_id,后续需改进设计
+    @RequestMapping(value = "/homework/{course_id}/unremarked", method = RequestMethod.GET)
+    public CommonResponse<List<Homework>> getUnremarkedHomework(@PathVariable int course_id)
+    {
+        // 查验教师身份
+        Integer user_id = UserContext.getCurrentUserId();
+        if(!userInfoService.getUserInfo(user_id).getData().getRole().equals("teacher"))
+        {
+            return CommonResponse.createForError(
+                    ResponseCode.ERROR.getCode(),
+                    ResponseCode.ERROR.getDescription()
+            );
+        }
+
+        return homeworkService.getUnremarkedHomework(course_id);
     }
 
     // 评价作业url  必需: 课程id,学生id,标题,内容,评价,成绩
     @LogAction("教师评价作业")
-    @RequestMapping(value = "/homework/remark", method = RequestMethod.POST)
+    @RequestMapping(value = "/homework/{course_id}/remark", method = RequestMethod.POST)
     public CommonResponse<Homework> remarkHomework(
-            @RequestPart("homework") HomeworkDTO homeworkDTO
+            @PathVariable int course_id,
+            @RequestBody HomeworkDTO homeworkDTO
     )
     {
         Homework homework = new Homework();
         BeanUtils.copyProperties(homeworkDTO, homework);
+        homework.setCourse_id(course_id);
         homework.setTeacher_id(UserContext.getCurrentUserId());
         return homeworkService.remarkHomework(homework);
     }
@@ -328,22 +383,30 @@ public class TaskController
         return examService.getUserExamList(course_id_list);
     }
 
+    @LogAction("用户获取已完成的考试")
+    @RequestMapping(value = "/exam/finished_exam", method = RequestMethod.GET)
+    public CommonResponse<List<ExamScoreVO>> getFinishedExam()
+    {
+        return examService.getFinishedExam(UserContext.getCurrentUserId());
+    }
+
     // 教师创建考试
     @RequestMapping(value = "/exam/{course_id}/create", method = RequestMethod.POST)
     public CommonResponse<Exam> createExam(
             @PathVariable int course_id,
-            @RequestPart("exam")ExamDTO examDTO
+            @RequestBody ExamDTO examDTO
             )
     {
         Exam exam = new Exam();
         BeanUtils.copyProperties(examDTO, exam);
         Integer user_id = UserContext.getCurrentUserId();
         exam.setTeacher_id(user_id);
+        exam.setCourse_id(course_id);
         return examService.createExam(exam);
     }
 
     // 获取考试试卷
-    @RequestMapping(value = "/exam/{exam_id}/paper", method = RequestMethod.POST)
+    @RequestMapping(value = "/exam/{exam_id}/paper", method = RequestMethod.GET)
     public CommonResponse<PaperVO> getExamPaper(@PathVariable int exam_id)
     {
         return examService.getPaper(exam_id);
@@ -356,7 +419,7 @@ public class TaskController
     @RequestMapping(value = "/exam/{exam_id}/student_answer", method = RequestMethod.POST)
     public CommonResponse<QuestionRecord> saveOrUpdateRecode(
             @PathVariable int exam_id,
-            @RequestPart("question_record")QuestionRecordDTO questionRecordDTO
+            @RequestBody QuestionRecordDTO questionRecordDTO
             )
     {
         // 设置一个符合要求的问题记录
@@ -385,6 +448,15 @@ public class TaskController
     )
     {
         return examService.generatePaper(exam_id, 10, 10, 10, tags, true);
+    }
+
+    /*----------------------------------------------------*/
+
+    // 计算并获取课程成绩
+    @RequestMapping(value = "/score/{course_id}", method = RequestMethod.GET)
+    public CommonResponse<ScoreVO> getCourseScore(@PathVariable int course_id)
+    {
+        return scoreService.updateAndGetScore(UserContext.getCurrentUserId(), course_id);
     }
 
 }

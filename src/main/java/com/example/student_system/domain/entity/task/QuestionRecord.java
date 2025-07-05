@@ -14,8 +14,6 @@ public class QuestionRecord
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
     private int user_id;
-    private int course_id;
-    private String course_name;
     private int exam_id;
     private int question_id;
     private String question_type;
