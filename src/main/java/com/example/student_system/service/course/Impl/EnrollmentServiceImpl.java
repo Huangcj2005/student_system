@@ -14,6 +14,7 @@ import com.example.student_system.service.course.EnrollmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,11 +34,21 @@ public class EnrollmentServiceImpl implements EnrollmentService
         QueryWrapper<Enrollment> queryWrapper=new QueryWrapper<>();
         queryWrapper.eq("course_id",course_id);
         List<Enrollment> enrollmentList=enrollmentMapper.selectList(queryWrapper);
-        List<Integer> userIdList=enrollmentList.stream()
-                .map(Enrollment::getUser_id)
-                .collect(Collectors.toList());
 
-        List<User> userList=userMapper.selectBatchIds(userIdList);
+        List<Integer> userIdList = new ArrayList<>();
+
+        for(Enrollment enrollment : enrollmentList)
+        {
+            userIdList.add(enrollment.getUserId());
+        }
+
+        List<User> userList = new ArrayList<>();
+        for(Integer userId : userIdList){
+            QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+            userQueryWrapper.eq("user_id",userId);
+            userList.add(userMapper.selectOne(userQueryWrapper));
+        }
+
         return CommonResponse.createForSuccess(
                 ResponseCode.USER_FETCH_SUCCESS.getCode(),
                 ResponseCode.USER_FETCH_SUCCESS.getDescription(),

@@ -5,21 +5,18 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
-@TableName("question_record")
-public class QuestionRecord
+@TableName("exam_score")
+public class ExamScore
 {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
-    private int user_id;
     private int exam_id;
-    private int question_id;
-    private String question_type;
-    private String question_content;
-    private String answer;
-    private String right_answer;
+    private int user_id;
+    private BigDecimal score;
     private Date create_time;
     private Date update_time;
     private Date delete_time;

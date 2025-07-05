@@ -26,6 +26,7 @@ public class Homework {
     private String attachment_url;
     @TableField("submit_attachment")
     private String submit_url;
+    private String submit_content;
     private BigDecimal score;
     private String remark;
     private Date start_time;

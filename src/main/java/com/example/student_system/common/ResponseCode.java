@@ -41,11 +41,23 @@ public enum ResponseCode {
     HOMEWORK_REMARK_SUCCESS(1203, "作业评价成功"),
     HOMEWORK_SCORE_FETCH_SUCCESS(1204, "学生作业平均成绩获取成功"),
     HOMEWORK_DETAIL_FETCH_SUCCESS(1205, "作业详情获取成功"),
+    UNREMARKED_HOMEWORK_FETCH_SUCCESS(1206,"教师获取未评阅作业成功"),
 
     EXAM_CREATE_SUCCESS(1300, "考试创建成功"),
     EXAM_LIST_FETCH_SUCCESS(1301, "考试列表查询成功"),
     PAPER_GENERATE_SUCCESS(1302, "试卷生成成功"),
     USER_EXAM_LIST_FETCH_SUCCESS(1303, "用户考试列表获取成功"),
+    QUESTION_RECORD_INSERT_SUCCESS(1304, "用户答题保存成功"),
+    QUESTION_RECORD_UPDATE_SUCCESS(1305, "用户答题更新成功"),
+    EXAM_SUBMIT_SUCCESS(1306, "考试已提交"),
+    PAPER_FETCH_SUCCESS(1307, "试卷获取成功"),
+    EXAM_SCORE_FETCH_SUCCESS(1308, "考试成绩获取成功"),
+    FINISHED_EXAM_FETCH_SUCCESS(1309, "已完成考试获取成功"),
+
+    SCORE_CREATE_SUCCESS(1400, "课程成绩创建成功"),
+    SCORE_FETCH_SUCCESS(1401, "课程成绩获取成功"),
+    SCORE_FETCH_AND_UPDATE_SUCCESS(1402, "课程成绩获取并更新成功"),
+
 
 
     // 错误码从 2000 开始，命名格式与成功码相同
@@ -79,6 +91,9 @@ public enum ResponseCode {
     HOMEWORK_EXISTS(2200,"作业已存在"),
     SUFFIX_NOT_ALLOWED(2201, "不支持的附件类型"),
     UPLOAD_FAILED(2202, "文件上传失败"),
+    HOMEWORK_ASSIGN_FAIL(2203, "课程没有学生"),
+    HOMEWORK_JSON_ERROR(2204, "Homework的JSON格式错误"),
+    HOMEWORK_NOT_EXISTS(2205, "作业不存在"),
 
     PAPER_GENERATE_FAILED(2303, "试卷生成失败")
 
