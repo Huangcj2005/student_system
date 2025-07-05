@@ -30,10 +30,23 @@ public enum ResponseCode {
     NOTE_UPDATE_SUCCESS(1105,"笔记更新成功"),
     COURSE_LIST_FETCH_SUCCESS(1106,"获取课程列表成功"),
     COURSE_ADD_SUCCESS(1107,"课程添加成功"),
+    COURSE_NAME_GET_SUCCESS(1118,"课程名称获得成功"),
     USER_FETCH_SUCCESS(1108,"选课用户查询成功"),
     ENROLLMENT_FETCH_SUCCESS(1109,"选择课程查询成功"),
     ENROLLMENT_ADD_SUCCESS(1110,"选课成功"),
-    ENROLLMENT_DELETE_SUCCESS(1101,"退课成功"),
+    ENROLLMENT_DELETE_SUCCESS(1111,"退课成功"),
+    KNOWLEDGEBANK_ADD_SUCCESS(1112,"知识库添加成功"),
+    KNOWLEDGEBANK_FETCH_SUCCESS(1113,"知识库拉取成功"),
+    LEARN_RECORD_INSERT_SUCCESS(1114,"学习记录插入成功"),
+    LEARN_RECORD_UPDATE_SUCCESS(1115,"学习记录更新成功"),
+    LEARN_RECORD_FETCH_SUCCESS(1116,"学习记录查询成功"),
+    LEARN_RECORD_LIST_FETCH_SUCCESS(1117,"学习记录列表查询成功"),
+    DISCUSSION_INSERT_SUCCESS(1119,"课后讨论添加成功"),
+    DISCUSSION_FETCH_SUCCESS(1120,"课后讨论获取成功"),
+    DISCUSSION_LIST_FETCH_SUCCESS(1121,"课后讨论列表获取成功"),
+    DISCUSSION_BLOCK_FETCH_SUCCESS(1122,"课后讨论模块获取成功"),
+    DISCUSSION_BLOCK_COUNT_FETCH_SUCCESS(1123,"课后讨论模块数量获取成功"),
+
     // --- 12xx:作业业务成功状态码
     HOMEWORK_LIST_FETCH_SUCCESS(1200, "用户作业列表获取成功"),
     HOMEWORK_ASSIGN_SUCCESS(1201, "作业发布成功"),
@@ -81,11 +94,16 @@ public enum ResponseCode {
     // --- 202x:用户隐私更新失败
     USER_PHOTO_UPDATE_ERROR(2020, "传入头像不能为空"),
 
+
     // --- 21xx:课程业务失败状态码
     NOTE_DELETE_FAIL(2100,"笔记删除失败"),
     NOTE_FETCH_FAIL(2101,"没有笔记"),
     NOTE_UPDATE_FAIL(2102,"笔记更新失败"),
     NOTE_ASSIGN_FAIL(2103,"笔记添加失败"),
+    DISCUSSION_BLOCK_COUNT_FETCH_FAIL(2104,"没有笔记"),
+    COURSE_LIST_FETCH_FAIL(2105,"没有课程"),
+    USER_FETCH_FAIL(2106,"没有学生"),
+    KNOWLEDGEBANK_FETCH_FAIL(2107,"知识库拉取失败"),
 
     // --- 22xx:作业业务失败状态码
     HOMEWORK_EXISTS(2200,"作业已存在"),

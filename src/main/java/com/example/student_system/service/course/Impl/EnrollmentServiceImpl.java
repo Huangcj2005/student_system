@@ -3,18 +3,32 @@ package com.example.student_system.service.course.Impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.student_system.common.CommonResponse;
 import com.example.student_system.common.ResponseCode;
+import com.example.student_system.domain.dto.course.EnrollmentDTO;
 import com.example.student_system.domain.entity.account.User;
 import com.example.student_system.domain.entity.course.Course;
 import com.example.student_system.domain.entity.course.Enrollment;
+<<<<<<< HEAD
 import com.example.student_system.domain.vo.CourseVo;
 import com.example.student_system.mapper.CourseMapper;
 import com.example.student_system.mapper.EnrollmentMapper;
+=======
+import com.example.student_system.domain.vo.course.CourseVo;
+import com.example.student_system.domain.vo.course.DiscussionVo;
+import com.example.student_system.domain.vo.user.UserVo;
+import com.example.student_system.mapper.course.CourseMapper;
+import com.example.student_system.mapper.course.EnrollmentMapper;
+>>>>>>> origin/feature/note
 import com.example.student_system.mapper.account.UserMapper;
 import com.example.student_system.service.course.EnrollmentService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+<<<<<<< HEAD
+=======
+import java.util.Date;
+>>>>>>> origin/feature/note
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,6 +48,7 @@ public class EnrollmentServiceImpl implements EnrollmentService
         QueryWrapper<Enrollment> queryWrapper=new QueryWrapper<>();
         queryWrapper.eq("course_id",course_id);
         List<Enrollment> enrollmentList=enrollmentMapper.selectList(queryWrapper);
+<<<<<<< HEAD
 
         List<Integer> userIdList = new ArrayList<>();
 
@@ -54,6 +69,37 @@ public class EnrollmentServiceImpl implements EnrollmentService
                 ResponseCode.USER_FETCH_SUCCESS.getDescription(),
                 userList
         );
+=======
+        List<Integer> userIdList=enrollmentList.stream()
+                .map(Enrollment::getUser_id)
+                .collect(Collectors.toList());
+        System.out.println(enrollmentList);
+        List<User> userList = new ArrayList<>();
+        for(Integer userId : userIdList){
+            QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+            userQueryWrapper.eq("user_id",userId);
+            userList.add(userMapper.selectOne(userQueryWrapper));
+        }
+
+
+
+        if (!userList.isEmpty())
+        {
+            return CommonResponse.createForSuccess(
+                    ResponseCode.USER_FETCH_SUCCESS.getCode(),
+                    ResponseCode.USER_FETCH_SUCCESS.getDescription(),
+                    userList
+            );
+        }
+        else
+        {
+            return CommonResponse.createForError(
+                    ResponseCode.USER_FETCH_FAIL.getCode(),
+                    ResponseCode.USER_FETCH_FAIL.getDescription()
+            );
+        }
+
+>>>>>>> origin/feature/note
     }
 
     @Override
@@ -87,8 +133,12 @@ public class EnrollmentServiceImpl implements EnrollmentService
     }
 
     @Override
-    public CommonResponse<Enrollment> addEnrollment(Enrollment newEnrollment) {
-        enrollmentMapper.insert(newEnrollment);
+    public CommonResponse<String> addEnrollment(EnrollmentDTO newEnrollmentDTO) {
+        Enrollment enrollment=new Enrollment();
+        BeanUtils.copyProperties(newEnrollmentDTO, enrollment);
+        enrollment.setCreate_time(new Date());
+        enrollment.setUpdate_time(new Date());
+        enrollmentMapper.insert(enrollment);
         return CommonResponse.createForSuccess(
                 ResponseCode.ENROLLMENT_ADD_SUCCESS.getCode(),
                 ResponseCode.ENROLLMENT_ADD_SUCCESS.getDescription()
@@ -96,7 +146,7 @@ public class EnrollmentServiceImpl implements EnrollmentService
     }
 
     @Override
-    public CommonResponse<Enrollment> deleteEnrollmentById(int user_id, int course_id) {
+    public CommonResponse<String> deleteEnrollmentById(int user_id, int course_id) {
         QueryWrapper<Enrollment> queryWrapper=new QueryWrapper<>();
         queryWrapper.eq("user_id",user_id)
                 .eq("course_id",course_id);

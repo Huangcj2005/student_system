@@ -1,4 +1,4 @@
-package com.example.student_system.domain.entity.note;
+package com.example.student_system.domain.entity.course;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -8,18 +8,19 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-@TableName("note")
-public class Note {
+@TableName("knowledge_bank")
+public class KnowledgeBank {
     @TableId("id")
     private int id;
-    private String note_id;
-    private int user_id;
     private int course_id;
     private String course_name;
     private String chapter_id;
     private String chapter_name;
-    @TableField("content")
-    private String note_content;
+    private String chapter_detail;
+    @TableField("video")
+    private String course_video_url;
+    @TableField("courseware")
+    private String courseware_url;
     private Date create_time;
     private Date update_time;
     private Date delete_time;
