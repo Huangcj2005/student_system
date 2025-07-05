@@ -9,7 +9,6 @@ import com.example.student_system.domain.entity.course.Course;
 import com.example.student_system.domain.entity.course.Enrollment;
 import com.example.student_system.domain.vo.course.CourseVo;
 import com.example.student_system.domain.vo.course.DiscussionVo;
-import com.example.student_system.domain.vo.user.UserVo;
 import com.example.student_system.mapper.course.CourseMapper;
 import com.example.student_system.mapper.course.EnrollmentMapper;
 import com.example.student_system.mapper.account.UserMapper;
@@ -125,4 +124,40 @@ public class EnrollmentServiceImpl implements EnrollmentService
                 ResponseCode.ENROLLMENT_DELETE_SUCCESS.getDescription()
         );
     }
+
+    @Override
+    public CommonResponse<List<CourseVo>> getUnPickedCourseByUserId(int user_id) {
+        QueryWrapper<Enrollment> queryWrapper=new QueryWrapper<>();
+        queryWrapper.eq("user_id",user_id);
+        List<Enrollment> enrollmentList=enrollmentMapper.selectList(queryWrapper);
+        List<Integer> courseIdList=enrollmentList.stream()
+                .map(Enrollment::getCourse_id)
+                .collect(Collectors.toList());
+
+        QueryWrapper<Course> courseQuery = new QueryWrapper<>();
+        if (!courseIdList.isEmpty()) {
+            courseQuery.notIn("course_id", courseIdList);
+        }
+        List<Course> unselectedCourseList = courseMapper.selectList(courseQuery);
+
+        List<CourseVo> courseVoList=unselectedCourseList.stream().map(
+                course -> {
+                    CourseVo vo=new CourseVo();
+                    vo.setCourse_id(course.getCourse_id());
+                    vo.setCourse_name(course.getCourse_name());
+                    vo.setCourse_detail(course.getCourse_detail());
+                    vo.setCourse_img_url(course.getCourse_img_url());
+                    vo.setStart_date(course.getStart_time());
+                    vo.setEnd_time(course.getEnd_time());
+                    vo.setTeacher_id(course.getTeacher_id());
+                    return vo;
+                }
+        ).collect(Collectors.toList());
+        return CommonResponse.createForSuccess(
+                ResponseCode.UNENROLLMENT_FETCH_SUCCESS.getCode(),
+                ResponseCode.UNENROLLMENT_FETCH_SUCCESS.getDescription(),
+                courseVoList
+        );
+    }
+
 }
