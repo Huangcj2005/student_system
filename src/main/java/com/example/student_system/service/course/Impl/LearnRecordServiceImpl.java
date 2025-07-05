@@ -15,7 +15,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Date;
+import java.util.List;
 
 @Service("LearnRecordService")
 public class LearnRecordServiceImpl implements LearnRecordService {
@@ -68,6 +71,28 @@ public class LearnRecordServiceImpl implements LearnRecordService {
                 ResponseCode.LEARN_RECORD_FETCH_SUCCESS.getDescription(),
                 learnRecordVo
         );
+    }
+
+    @Override
+    public BigDecimal getScoreByProgress(int user_id, int course_id) {
+        QueryWrapper<LearnRecord> queryWrapper=new QueryWrapper<>();
+        queryWrapper.eq("user_id",user_id)
+                .eq("course_id",course_id);
+        List<LearnRecord> learnRecordList=learnRecordMapper.selectList(queryWrapper);
+        int count=learnRecordList.size();
+        BigDecimal sum = BigDecimal.ZERO;
+        BigDecimal score=BigDecimal.ZERO;
+        for (LearnRecord record : learnRecordList) {
+            BigDecimal progress = record.getProgress(); // progress 是 BigDecimal 类型
+            if (progress != null) {
+                sum = sum.add(progress);
+            }
+        }
+        if (count > 0) {
+            BigDecimal average = sum.divide(BigDecimal.valueOf(count), 2, RoundingMode.HALF_UP);
+            score = average.multiply(BigDecimal.valueOf(100));
+        }
+        return score;
     }
 
 //    @Override

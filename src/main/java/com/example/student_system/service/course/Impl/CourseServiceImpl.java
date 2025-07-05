@@ -83,4 +83,40 @@ public class CourseServiceImpl implements CourseService {
         );
     }
 
+    @Override
+    public CommonResponse<List<CourseVo>> getCourseListByKeyword(String keyword) {
+        QueryWrapper<Course> queryWrapper = new QueryWrapper<>();
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            queryWrapper.like("course_name", keyword);
+        }
+
+        List<Course> courseList = courseMapper.selectList(queryWrapper);
+        List<CourseVo> courseVoList = courseList.stream().map(
+                course -> {
+                    CourseVo vo = new CourseVo();
+                    vo.setCourse_id(course.getCourse_id());
+                    vo.setCourse_name(course.getCourse_name());
+                    vo.setCourse_detail(course.getCourse_detail());
+                    vo.setCourse_img_url(course.getCourse_img_url());
+                    vo.setStart_date(course.getStart_time());
+                    vo.setEnd_time(course.getEnd_time());
+                    vo.setTeacher_id(course.getTeacher_id());
+                    return vo;
+                }
+        ).collect(Collectors.toList());
+
+        if (!courseVoList.isEmpty()) {
+            return CommonResponse.createForSuccess(
+                    ResponseCode.COURSE_LIST_FETCH_SUCCESS.getCode(),
+                    ResponseCode.COURSE_LIST_FETCH_SUCCESS.getDescription(),
+                    courseVoList
+            );
+        } else {
+            return CommonResponse.createForError(
+                    ResponseCode.COURSE_LIST_FETCH_FAIL.getCode(),
+                    ResponseCode.COURSE_LIST_FETCH_FAIL.getDescription()
+            );
+        }
+    }
+
 }

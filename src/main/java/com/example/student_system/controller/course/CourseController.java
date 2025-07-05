@@ -30,4 +30,10 @@ public class CourseController {
         return courseService.getCourseName(course_id);
     }
 
+    @GetMapping("/getCourseByKeyword")
+    public CommonResponse<List<CourseVo>> getCourseByKeyword(@RequestParam String keyword)
+    {
+        return courseService.getCourseListByKeyword(keyword);
+    }
+
 }

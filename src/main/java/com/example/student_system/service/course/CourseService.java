@@ -10,5 +10,6 @@ public interface CourseService {
     CommonResponse<List<CourseVo>> getCourseList();
     CommonResponse<String> addCourse(CourseDTO dto);
     CommonResponse<String> getCourseName(int course_id);
+    CommonResponse<List<CourseVo>> getCourseListByKeyword(String keyword);
 
 }

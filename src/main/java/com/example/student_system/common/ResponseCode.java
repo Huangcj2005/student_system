@@ -46,6 +46,7 @@ public enum ResponseCode {
     DISCUSSION_LIST_FETCH_SUCCESS(1121,"课后讨论列表获取成功"),
     DISCUSSION_BLOCK_FETCH_SUCCESS(1122,"课后讨论模块获取成功"),
     DISCUSSION_BLOCK_COUNT_FETCH_SUCCESS(1123,"课后讨论模块数量获取成功"),
+    UNENROLLMENT_FETCH_SUCCESS(1124,"未选择课程查询成功"),
 
     // --- 12xx:作业业务成功状态码
     HOMEWORK_LIST_FETCH_SUCCESS(1200, "用户作业列表获取成功"),
@@ -70,6 +71,7 @@ public enum ResponseCode {
     SCORE_CREATE_SUCCESS(1400, "课程成绩创建成功"),
     SCORE_FETCH_SUCCESS(1401, "课程成绩获取成功"),
     SCORE_FETCH_AND_UPDATE_SUCCESS(1402, "课程成绩获取并更新成功"),
+
 
 
 
