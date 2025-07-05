@@ -1,5 +1,6 @@
 package com.example.student_system.service.account.Impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.example.student_system.common.CommonResponse;
 import com.example.student_system.common.ResponseCode;
@@ -148,9 +149,13 @@ public class UserInfoServiceImpl implements UserInfoService {
             );
         }
 
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.eq("user_id",userId);
+        String username = userMapper.selectOne(userQueryWrapper).getUserName();
+
         try{
             // 生成唯一文件名
-            String fileName = "avatar_" + userId  + "_" + System.currentTimeMillis() + ".jpg";
+            String fileName = "avatar_" + username  + "_" + System.currentTimeMillis() + ".jpg";
             String uploadDir = System.getProperty("user.dir") + "/avatar/";
             File dir = new File(uploadDir);
             if(!dir.exists()) dir.mkdirs();
