@@ -13,11 +13,17 @@ import com.example.student_system.mapper.account.UserMapper;
 import com.example.student_system.mapper.account.UserPrivacyMapper;
 import com.example.student_system.service.account.UserInfoService;
 import com.example.student_system.util.AccountUtil;
+import com.example.student_system.util.AvatarUtil;
 import com.example.student_system.util.QueryUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import javax.imageio.ImageIO;
 
+
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Date;
 
 @Service("userInfoService")
@@ -45,6 +51,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         );
     }
 
+    @Override
     public CommonResponse<String> updateUserInfo(ChangeUserInfoDTO userInfo,int userId){
         User existingUser = QueryUtil.getUserById(userMapper, userId);
         User updatedUser = AccountUtil.InfoToUser(userInfo, existingUser);
@@ -58,7 +65,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                 ResponseCode.USER_INFO_UPDATE_SUCCESS.getDescription()
         );
     }
-
+    @Override
     public CommonResponse<String> updatePassword(int userId, String oldPassword, String newPassword){
         User user = QueryUtil.getUserById(userMapper, userId);
 
@@ -91,7 +98,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                 ResponseCode.USER_PASSWORD_UPDATE_SUCCESS.getDescription()
         );
     }
-
+    @Override
     public CommonResponse<ChangePrivacyDTO> getUserPrivacy(int userId){
         UserPrivacy userPrivacy = QueryUtil.getUserPrivacyById(userPrivacyMapper, userId);
 
@@ -114,7 +121,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         );
     }
 
-
+    @Override
     public CommonResponse<String> updatePrivacy(int userId, ChangePrivacyDTO privacyDTO){
         UserPrivacy userPrivacy = QueryUtil.getUserPrivacyById(userPrivacyMapper, userId);
 
@@ -131,5 +138,59 @@ public class UserInfoServiceImpl implements UserInfoService {
                 ResponseCode.USER_PRIVACY_UPDATE_SUCCESS.getCode(),
                 ResponseCode.USER_PRIVACY_UPDATE_SUCCESS.getDescription()
         );
+    }
+
+    @Override
+    public CommonResponse<String> updateUserPhoto(int userId, MultipartFile file) {
+        if(file == null || file.isEmpty()){
+            return CommonResponse.createForError(
+                    ResponseCode.USER_PHOTO_UPDATE_ERROR.getCode(),
+                    ResponseCode.USER_PHOTO_UPDATE_ERROR.getDescription()
+            );
+        }
+
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.eq("user_id",userId);
+        String username = userMapper.selectOne(userQueryWrapper).getUserName();
+
+        try{
+            // 生成唯一文件名
+            String fileName = "avatar_" + username  + "_" + System.currentTimeMillis() + ".jpg";
+            String uploadDir = System.getProperty("user.dir") + "/avatar/";
+            File dir = new File(uploadDir);
+            if(!dir.exists()) dir.mkdirs();
+            File dest = new File(uploadDir + fileName);
+
+            BufferedImage image = ImageIO.read(file.getInputStream());
+            BufferedImage squareImage = AvatarUtil.cropSquare(image);
+
+            float quality = 0.8f;
+            do {
+                AvatarUtil.compressToJpeg(squareImage, dest, quality);
+                quality -= 0.1f;
+            } while (dest.length() > 1024 * 1024 && quality > 0.1f);
+
+            String url = uploadDir + fileName;
+
+            // 数据库更新
+            User user = QueryUtil.getUserById(userMapper,userId);
+            user.setPhoto(url);
+            user.setUpdateTime(new Date(System.currentTimeMillis()));
+
+            UpdateWrapper<User> userUpdateWrapper = new UpdateWrapper<>();
+            userUpdateWrapper.eq("user_id",userId);
+            userMapper.update(user, userUpdateWrapper);
+
+            return CommonResponse.createForSuccess(
+                    ResponseCode.USER_PHOTO_UPDATE_SUCCESS.getCode(),
+                    ResponseCode.USER_PHOTO_UPDATE_SUCCESS.getDescription(),
+                    url
+            );
+        }catch (Exception e){
+            return CommonResponse.createForError(
+                    ResponseCode.ERROR.getCode(),
+                    "头像上传失败: " + e.getMessage()
+            );
+        }
     }
 }
