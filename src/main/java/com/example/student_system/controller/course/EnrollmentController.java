@@ -24,6 +24,8 @@ public class EnrollmentController{
     @PostMapping("/addEnrollment")
     public CommonResponse<String> addEnrollment(@RequestBody EnrollmentDTO newEnrollmentDTO)
     {
+        Integer user_id=UserContext.getCurrentUserId();
+        newEnrollmentDTO.setUser_id(user_id);
         return enrollmentService.addEnrollment(newEnrollmentDTO);
     }
 
