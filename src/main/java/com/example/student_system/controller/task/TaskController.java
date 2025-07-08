@@ -11,7 +11,7 @@ import com.example.student_system.domain.entity.account.User;
 import com.example.student_system.domain.entity.task.Exam;
 import com.example.student_system.domain.entity.task.Homework;
 import com.example.student_system.domain.entity.task.QuestionRecord;
-import com.example.student_system.domain.vo.CourseVo;
+import com.example.student_system.domain.vo.course.CourseVo;
 import com.example.student_system.domain.vo.task.*;
 import com.example.student_system.service.account.UserInfoService;
 import com.example.student_system.service.course.EnrollmentService;
@@ -22,12 +22,20 @@ import com.example.student_system.util.UserContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -301,6 +309,53 @@ public class TaskController
         homework.setCourse_id(course_id);
         return homeworkService.submitHomework(homework);
     }
+
+    @RequestMapping(value = "/files/{course_id}/{file_name}", method = RequestMethod.GET)
+    public ResponseEntity<Resource> downloadFile(
+            @PathVariable String file_name,
+            @PathVariable String course_id,
+            @RequestParam String type
+    ) {
+        try {
+            // 获取当前用户ID
+            //Integer user_id = UserContext.getCurrentUserId();
+
+            Integer user_id = 529446;
+
+            // 根据提交类型拼接文件路径
+            String filePath = type.equals("submissions")
+                    ? "D:/uploads/submissions/" + user_id + "/" + file_name
+                    : "D:/uploads/assignments/" + course_id + "/" + file_name;
+
+            // 打印文件路径（调试用）
+            System.out.println(filePath);
+
+            // 创建文件对象
+            File file = new File(filePath);
+            if (!file.exists()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+
+            // 创建 Resource 对象
+            Resource resource = new FileSystemResource(file);
+
+            // 使用 URLEncoder 对文件名进行编码，避免乱码和特殊字符问题
+            String encodedFileName = URLEncoder.encode(file_name, StandardCharsets.UTF_8);
+
+            // 设置响应头，支持文件下载
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedFileName + "\"");
+
+            // 设置文件类型为二进制流，支持文件下载
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
 
     //FIXME:此处暴露了user_id,后续需改进设计
     @RequestMapping(value = "/homework/{course_id}/unremarked", method = RequestMethod.GET)

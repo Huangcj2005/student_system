@@ -7,7 +7,7 @@ import com.example.student_system.common.ResponseCode;
 import com.example.student_system.domain.entity.course.Course;
 import com.example.student_system.domain.entity.task.Score;
 import com.example.student_system.domain.vo.task.ScoreVO;
-import com.example.student_system.mapper.CourseMapper;
+import com.example.student_system.mapper.course.CourseMapper;
 import com.example.student_system.mapper.task.ScoreMapper;
 import com.example.student_system.service.task.ExamService;
 import com.example.student_system.service.task.HomeworkService;
