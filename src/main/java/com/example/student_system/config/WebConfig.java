@@ -7,15 +7,11 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-
     @Autowired
     private JwtFilter jwtFilter;
-
-    // TODO: 这里的过滤需要做一定的更改，控制哪些才是需要授权的
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtFilter)

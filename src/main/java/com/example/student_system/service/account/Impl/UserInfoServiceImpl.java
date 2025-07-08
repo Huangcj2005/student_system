@@ -156,7 +156,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         try{
             // 生成唯一文件名
             String fileName = "avatar_" + username  + "_" + System.currentTimeMillis() + ".jpg";
-            String uploadDir = System.getProperty("user.dir") + "/avatar/";
+            String uploadDir = "D:/uploads/avatar/";
             File dir = new File(uploadDir);
             if(!dir.exists()) dir.mkdirs();
             File dest = new File(uploadDir + fileName);
@@ -170,7 +170,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                 quality -= 0.1f;
             } while (dest.length() > 1024 * 1024 && quality > 0.1f);
 
-            String url = uploadDir + fileName;
+            String url = "/files/avatar/" + fileName;
 
             // 数据库更新
             User user = QueryUtil.getUserById(userMapper,userId);
