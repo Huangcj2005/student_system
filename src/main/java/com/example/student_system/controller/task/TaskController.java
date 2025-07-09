@@ -11,7 +11,7 @@ import com.example.student_system.domain.entity.account.User;
 import com.example.student_system.domain.entity.task.Exam;
 import com.example.student_system.domain.entity.task.Homework;
 import com.example.student_system.domain.entity.task.QuestionRecord;
-import com.example.student_system.domain.vo.CourseVo;
+import com.example.student_system.domain.vo.course.CourseVo;
 import com.example.student_system.domain.vo.task.*;
 import com.example.student_system.service.account.UserInfoService;
 import com.example.student_system.service.course.EnrollmentService;
