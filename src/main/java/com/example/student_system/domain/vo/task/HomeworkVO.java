@@ -8,6 +8,7 @@ import java.util.Date;
 @Data
 public class HomeworkVO
 {
+    private int course_id;
     private String homework_title;
     private String homework_content;
     private String attachment_url;

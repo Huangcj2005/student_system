@@ -290,7 +290,7 @@ public class ExamServiceImpl implements ExamService
             questionVOList.add(questionVO);
         }
         QueryWrapper<Exam> examQueryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("exam_id", exam_id);
+        examQueryWrapper.eq("exam_id", exam_id);
 
         paperVO.setExam_title(examMapper.selectOne(examQueryWrapper).getExam_name());
         paperVO.setExam_id(exam_id);
@@ -455,27 +455,33 @@ public class ExamServiceImpl implements ExamService
         if(exam.getStatus().equals("3"))
             return null;
 
+        System.out.println(exam);
+
         Date current_time = new Date();
+
+        System.out.println(current_time);
         UpdateWrapper<Exam> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("exam_id", exam_id)
-                .ge("start_time", current_time)
-                .le("end_time", current_time)
+                .le("start_time", current_time)
+                .ge("end_time", current_time)
                 .set("status", "1");
         examMapper.update(updateWrapper);
         updateWrapper.clear();
 
         updateWrapper.eq("exam_id", exam_id)
-                .le("start_time", current_time)
+                .gt("start_time", current_time)
                 .set("status", "0");
         examMapper.update(updateWrapper);
         updateWrapper.clear();
 
         // 设置状态已结束
         updateWrapper.eq("exam_id", exam_id)
-                .ge("end_time", current_time)
+                .le("end_time", current_time)
                 .set("status", "2");
         examMapper.update(updateWrapper);
         updateWrapper.clear();
+
+        System.out.println(exam);
 
         QueryWrapper<Exam> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("exam_id", exam_id);
