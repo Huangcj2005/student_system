@@ -6,6 +6,7 @@ import com.example.student_system.common.CommonResponse;
 import com.example.student_system.common.ResponseCode;
 import com.example.student_system.domain.dto.account.ChangePrivacyDTO;
 import com.example.student_system.domain.dto.account.ChangeUserInfoDTO;
+import com.example.student_system.domain.dto.account.ForgetPasswordDTO;
 import com.example.student_system.domain.dto.account.UserInfo;
 import com.example.student_system.domain.entity.account.User;
 import com.example.student_system.domain.entity.account.UserPrivacy;
@@ -15,7 +16,9 @@ import com.example.student_system.service.account.UserInfoService;
 import com.example.student_system.util.AccountUtil;
 import com.example.student_system.util.AvatarUtil;
 import com.example.student_system.util.QueryUtil;
+import com.example.student_system.util.UserContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,6 +35,9 @@ public class UserInfoServiceImpl implements UserInfoService {
     private UserMapper userMapper;
     @Autowired
     private UserPrivacyMapper userPrivacyMapper;
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();  // 密码解密
 
     @Override
     public CommonResponse<UserInfo> getUserInfo(int userId) {
@@ -154,8 +160,12 @@ public class UserInfoServiceImpl implements UserInfoService {
         String username = userMapper.selectOne(userQueryWrapper).getUserName();
 
         try{
-            // 生成唯一文件名
-            String fileName = "avatar_" + username  + "_" + System.currentTimeMillis() + ".jpg";
+            // 获取原始文件扩展名
+            String originalFilename = file.getOriginalFilename();
+            String ext = originalFilename.substring(originalFilename.lastIndexOf('.') + 1);
+
+            // 生成文件名
+            String fileName = "avatar_" + username  + "_" + System.currentTimeMillis() + "." + ext;
             String uploadDir = "D:/uploads/avatar/";
             File dir = new File(uploadDir);
             if(!dir.exists()) dir.mkdirs();
@@ -164,13 +174,10 @@ public class UserInfoServiceImpl implements UserInfoService {
             BufferedImage image = ImageIO.read(file.getInputStream());
             BufferedImage squareImage = AvatarUtil.cropSquare(image);
 
-            float quality = 0.8f;
-            do {
-                AvatarUtil.compressToJpeg(squareImage, dest, quality);
-                quality -= 0.1f;
-            } while (dest.length() > 1024 * 1024 && quality > 0.1f);
+            // 直接按原格式保存
+            ImageIO.write(squareImage, ext, dest);
 
-            String url = "/files/avatar/" + fileName;
+            String url = uploadDir + fileName;
 
             // 数据库更新
             User user = QueryUtil.getUserById(userMapper,userId);
@@ -192,5 +199,54 @@ public class UserInfoServiceImpl implements UserInfoService {
                     "头像上传失败: " + e.getMessage()
             );
         }
+    }
+
+    @Override
+    public CommonResponse<String> forgetPwd(ForgetPasswordDTO passwordDTO){
+        // 验证码校验
+        String email = passwordDTO.getEmail();
+        String code = passwordDTO.getCode();
+        String redisCode = redisTemplate.opsForValue().get("email:code:" + email);
+        if (redisCode == null) {
+            return CommonResponse.createForError(
+                    ResponseCode.VALIDATECODE_INVALID.getCode(),
+                    ResponseCode.VALIDATECODE_INVALID.getDescription()
+            );
+        }
+        if (!redisCode.equals(code)) {
+            return CommonResponse.createForError(
+                    ResponseCode.VALIDATECODE_ERROR.getCode(),
+                    ResponseCode.VALIDATECODE_ERROR.getDescription()
+            );
+        }
+        // 验证通过后删除验证码
+        redisTemplate.delete("email:code:" + email);
+
+        User user = QueryUtil.getUserByEmail(userMapper, email);
+        if(user == null){
+            return CommonResponse.createForError(
+                    ResponseCode.USER_EXIST_ERROR.getCode(),
+                    ResponseCode.USER_EXIST_ERROR.getDescription()
+            );
+        }
+
+        // 设置用户上下文，让@LogAction注解能够获取到用户ID
+        UserContext.setCurrentUserId(user.getUserId());
+
+        // 通过校验后，允许修改数据库内容
+        user.setPassword(passwordEncoder.encode(passwordDTO.getNewPassword()));
+        user.setUpdateTime(new Date(System.currentTimeMillis()));
+
+        UpdateWrapper<User> userUpdateWrapper = new UpdateWrapper<>();
+        userUpdateWrapper.eq("email", email)
+                .isNull("delete_time");
+        userMapper.update(user, userUpdateWrapper);
+
+        System.out.println("【忘记密码】用户密码更新成功");
+
+        return CommonResponse.createForSuccess(
+                ResponseCode.USER_PASSWORD_UPDATE_SUCCESS.getCode(),
+                ResponseCode.USER_PASSWORD_UPDATE_SUCCESS.getDescription()
+        );
     }
 }

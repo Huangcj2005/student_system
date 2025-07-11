@@ -21,7 +21,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/user/login",    // 登录接口
                         "/user/register", // 注册接口
                         "/error",             // 错误页面
-                        "/favicon.ico"        // 网站图标
+                        "/favicon.ico",        // 网站图标
+                        "/user/forget/pwd"  // 找回密码
                 );
     }
     @Override

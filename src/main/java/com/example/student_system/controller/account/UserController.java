@@ -93,6 +93,12 @@ public class UserController {
         return userInfoService.updatePassword(userId, passwordDTO.getOldPassword(), passwordDTO.getNewPassword());
     }
 
+    @PostMapping("forget/pwd")
+    @LogAction("用户忘记密码")
+    public CommonResponse<String> forgetPwd(@Valid @RequestBody ForgetPasswordDTO passwordDTO){
+        return userInfoService.forgetPwd(passwordDTO);
+    }
+
     @GetMapping("student-privacy")
     @LogAction("访问用户隐私设置")
     public CommonResponse<ChangePrivacyDTO> getUserPrivacy(){

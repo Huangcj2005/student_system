@@ -86,6 +86,7 @@ public enum ResponseCode {
     PASSWORD_ERROR(2004,"密码错误"),
     VALIDATECODE_INVALID(2005,"验证码无效"),
     VALIDATECODE_ERROR(2006,"验证码错误"),
+    USER_EXIST_ERROR(2007, "用户不存在"),
 
 
     // --- 201x:注册失败

@@ -124,7 +124,6 @@ public class UserServiceImpl implements UserService {
         // 验证通过后删除验证码
         redisTemplate.delete("email:code:" + email);
 
-        
         // 创建新用户(已包含创建时间)
         User user = AccountUtil.RegisterToUser(
                 registerRequest,

@@ -3,7 +3,10 @@ package com.example.student_system.service.account;
 import com.example.student_system.common.CommonResponse;
 import com.example.student_system.domain.dto.account.ChangePrivacyDTO;
 import com.example.student_system.domain.dto.account.ChangeUserInfoDTO;
+import com.example.student_system.domain.dto.account.ForgetPasswordDTO;
 import com.example.student_system.domain.dto.account.UserInfo;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface UserInfoService {
@@ -50,5 +53,7 @@ public interface UserInfoService {
      * @return 用户头像 url
      */
     CommonResponse<String> updateUserPhoto(int userId, MultipartFile file);
+
+    CommonResponse<String> forgetPwd(ForgetPasswordDTO passwordDTO);
 
 }
